@@ -1,8 +1,9 @@
 import streamlit as st
+from views import Header, Sidebar
 
-from views import Component
 
+header = Header()
+sidebar = Sidebar()
 
-title = Component(st.title, body="Prediksi Harga Emas")
-
-title.show()
+header.build()
+sidebar.build()
