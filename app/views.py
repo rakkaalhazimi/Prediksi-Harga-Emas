@@ -44,6 +44,36 @@ class InfoBoard(ViewElement):
         st.markdown("---")
 
 
+class PreParam(ViewElement):
+    def __init__(self) -> None:
+        self.title = Component(st.subheader, body="Setelan Jumlah Data Test")
+        self.desc = Component(st.write, 
+        """Tentukan proporsi antara jumlah data latih dan data test.
+        """
+        )
+        self.test_size = Component(st.number_input, label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
+        self.submit = Component(st.form_submit_button, label="Konfirmasi")
+
+        self.comps = [self.test_size]
+        self.pnames = ["Ukuran Data Test"]
+
+    def build(self) -> dict:
+        st.markdown("#")
+        self.title.show()
+        self.desc.show()
+
+        params = {}
+        with st.form("ParameterTest"):
+            for key, comp in zip(self.pnames, self.comps):
+                val = comp.show()
+                params[key] = val
+        
+            is_submit = self.submit.show()
+
+        if is_submit:
+            return params
+
+
 class GAParam(ViewElement):
     def __init__(self) -> None:
         self.title = Component(st.subheader, body="Setelan Algoritma Genetika")
@@ -68,7 +98,7 @@ class GAParam(ViewElement):
         self.desc.show()
 
         params = {}
-        with st.form("Parameter"):
+        with st.form("ParameterGA"):
             for key, comp in zip(self.pnames, self.comps):
                 val = comp.show()
                 params[key] = val
