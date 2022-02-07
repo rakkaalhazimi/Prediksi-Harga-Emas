@@ -145,7 +145,7 @@ class MetricsReport(ViewElement):
         self.coef = Component(st.write, "Koefisien")
         self.intercept = Component(st.write, "Intersep")
          
-        self.comps = [self.r2, self.mse, self.rmse, self.coef, self.intercept]
+        self.comps = [self.r2, self.mse, self.rmse]
 
 
     def build(self) -> None:

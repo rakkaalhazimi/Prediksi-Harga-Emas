@@ -103,3 +103,17 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
         **jual_test
         )
     error_linreg_jual.build()
+
+    error_linreg_ga_beli = MetricsReport(
+        title="Hasil Metric Regresi Linier + GA pada Harga Beli",
+        model=st.session_state["linreg_beli_ga"],
+        **beli_test
+        )
+    error_linreg_ga_beli.build()
+
+    error_linreg_ga_jual = MetricsReport(
+        title="Hasil Metric Regresi Linier + GA pada Harga Jual",
+        model=st.session_state["linreg_jual_ga"],
+        **jual_test
+        )
+    error_linreg_ga_jual.build()
