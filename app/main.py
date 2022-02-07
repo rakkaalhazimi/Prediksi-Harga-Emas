@@ -89,7 +89,6 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
 # st.session_state
 
     # View - Laporan Hasil Latihan
-    st.write(st.session_state["linreg_beli"].score)
     st.subheader("Evaluasi Model")
     error_linreg_beli = MetricsReport(
         title="Hasil Metric Regresi Linier pada Harga Beli",
