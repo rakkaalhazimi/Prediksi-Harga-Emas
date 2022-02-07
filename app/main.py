@@ -1,6 +1,6 @@
 import streamlit as st
 from sklearn.linear_model import LinearRegression
-from views import InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header
+from views import InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, MetricsReport
 from src.data import load_data
 from src.models import gen_algo
 from src.pre import preprocess_data
@@ -58,18 +58,14 @@ train_info = InfoBoardWithButton(
     btn_label="Latih"
     )
 is_train = train_info.build()
-st.session_state["is_train"] = is_train
 
-if st.session_state.get("size") and is_train:
+if st.session_state.get("size") and st.session_state.get("test_size") and is_train:
     # Latih Regresi Linier
-    st.write("Melatih regresi linier...")
     linreg_beli = LinearRegression().fit(beli_train["X_train"], beli_train["y_train"])
     linreg_jual = LinearRegression().fit(jual_train["X_train"], jual_train["y_train"])
-    st.write("Selesai")
 
     # Latih Regresi Linier dengan GA
     st.markdown("#")
-    st.write("Melatih regresi linier dengan GA...")
     ga_input = {
         "size": st.session_state.get("size"),
         "n_gen": st.session_state.get("n_gen"),
@@ -78,7 +74,6 @@ if st.session_state.get("size") and is_train:
     }
     population_beli, fitness_beli, linreg_beli_ga = gen_algo(**ga_input, **beli_train)
     population_jual, fitness_jual, linreg_jual_ga = gen_algo(**ga_input, **beli_train)
-    st.write("Selesai")
 
     # Simpan hasil train ke dalam session
     st.session_state["populasi_beli"] = population_beli
@@ -92,3 +87,20 @@ if st.session_state.get("size") and is_train:
 
 
 # st.session_state
+
+    # View - Laporan Hasil Latihan
+    st.write(st.session_state["linreg_beli"].score)
+    st.subheader("Evaluasi Model")
+    error_linreg_beli = MetricsReport(
+        title="Hasil Metric Regresi Linier pada Harga Beli",
+        model=st.session_state["linreg_beli"],
+        **beli_test
+        )
+    error_linreg_beli.build()
+
+    error_linreg_jual = MetricsReport(
+        title="Hasil Metric Regresi Linier pada Harga Jual",
+        model=st.session_state["linreg_jual"],
+        **jual_test
+        )
+    error_linreg_jual.build()

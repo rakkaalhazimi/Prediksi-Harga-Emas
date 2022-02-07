@@ -1,6 +1,9 @@
 from abc import abstractmethod
 import json
 import streamlit as st
+import pandas as pd
+from sklearn.metrics import r2_score, mean_squared_error
+
 
 
 class ViewElement:
@@ -57,7 +60,7 @@ class InfoBoardWithButton(ViewElement):
             comp.show()
 
         is_train = self.button.show()
-        st.markdown("---")
+        
         return is_train
 
 
@@ -124,3 +127,28 @@ class GAParam(ViewElement):
 
         if is_submit:
             return params
+
+
+class MetricsReport(ViewElement):
+    def __init__(self, title, model, X_test, y_test) -> None:
+        self.title = title
+        predictions = model.predict(X_test)
+        r2 = r2_score(predictions, y_test)
+        mse = mean_squared_error(predictions, y_test)
+        rmse = mean_squared_error(predictions, y_test, squared=False)
+        coef = model.coef_
+        intercept = model.intercept_
+
+        self.r2 = Component(st.metric, label="R2 Score", value="{:.2%}".format(r2))
+        self.mse = Component(st.metric, label="MSE Score", value="{:.2f}".format(mse))
+        self.rmse = Component(st.metric, label="RMSE Score", value="{:.2f}".format(rmse))
+        self.coef = Component(st.write, "Koefisien")
+        self.intercept = Component(st.write, "Intersep")
+         
+        self.comps = [self.r2, self.mse, self.rmse, self.coef, self.intercept]
+
+
+    def build(self) -> None:
+        with st.expander(self.title):
+            for comp in self.comps:
+                comp.show()
