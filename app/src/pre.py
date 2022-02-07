@@ -70,13 +70,10 @@ def preprocess_data(df, test_size):
     # Split Data Harga Jual
     X_jual_train, X_jual_test, y_jual_train, y_jual_test = split_data(X_jual, y_jual, test_size=test_size)
 
-    return {
-        "X_beli_train": X_beli_train, 
-        "X_beli_test" : X_beli_test, 
-        "y_beli_train": y_beli_train,
-        "y_beli_test" : y_beli_test,
-        "X_jual_train": X_jual_train,
-        "X_jual_test" : X_jual_test,
-        "y_jual_train": y_jual_train,
-        "y_jual_test" : y_jual_test
-    }
+    # Serialisasi data
+    beli_train = {"X_train": X_beli_train, "y_train": y_beli_train}
+    beli_test = {"X_test": X_beli_test, "y_test": y_beli_test}
+    jual_train = {"X_train": X_jual_train, "y_train": y_jual_train}
+    jual_test = {"X_test": X_jual_test, "y_test": y_jual_test}
+
+    return beli_train, beli_test, jual_train, jual_test

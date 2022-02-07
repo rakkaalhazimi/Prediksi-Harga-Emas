@@ -44,6 +44,23 @@ class InfoBoard(ViewElement):
         st.markdown("---")
 
 
+class InfoBoardWithButton(ViewElement):
+    def __init__(self, title, desc, btn_label) -> None:
+        self.title = Component(st.subheader, body=title)
+        self.desc = Component(st.write, desc)
+        self.button = Component(st.button, btn_label)
+        self.comps = [self.title, self.desc]
+
+    def build(self) -> None:
+        st.markdown("#")
+        for comp in self.comps:
+            comp.show()
+
+        is_train = self.button.show()
+        st.markdown("---")
+        return is_train
+
+
 class PreParam(ViewElement):
     def __init__(self) -> None:
         self.title = Component(st.subheader, body="Setelan Jumlah Data Test")
@@ -55,7 +72,7 @@ class PreParam(ViewElement):
         self.submit = Component(st.form_submit_button, label="Konfirmasi")
 
         self.comps = [self.test_size]
-        self.pnames = ["Ukuran Data Test"]
+        self.pnames = ["test_size"]
 
     def build(self) -> dict:
         st.markdown("#")
@@ -80,17 +97,17 @@ class GAParam(ViewElement):
         self.desc = Component(st.write, 
         """Tentukan nilai parameter untuk melatih model 
         menggunakan metode regresi linier dengan optimalisasi algoritma genetika.
-        Setelah parameter ditentukan, klik 'Latih'.
+        Setelah parameter ditentukan, klik 'Konfirmasi'.
         """
         )
         self.generation = Component(st.number_input, label="Jumlah Generasi", min_value=10, max_value=100, step=10)
         self.size = Component(st.number_input, label="Ukuran Populasi", min_value=100, max_value=1500, step=100)
         self.cr = Component(st.number_input, label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
         self.mr = Component(st.number_input, label="Mutation Rate", min_value=0.0, max_value=1.0, step=0.1)
-        self.submit = Component(st.form_submit_button, label="Latih")
+        self.submit = Component(st.form_submit_button, label="Konfirmasi")
 
         self.comps = [self.generation, self.size, self.cr, self.mr]
-        self.pnames = ["Jumlah Generasi", "Ukuran Populasi", "Crossover Rate", "Mutation Rate"]
+        self.pnames = ["n_gen", "size", "cr", "mr"]
 
     def build(self) -> dict:
         st.markdown("#")
