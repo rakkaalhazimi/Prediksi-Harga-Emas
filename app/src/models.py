@@ -1,6 +1,12 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LinearRegression
+
+
+prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
+error_columns = ["Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR", "Error RMSE MLR+Genetic"]
+
 
 def create_population(size, n_feat):
     population = np.random.uniform(low=-1., high=1., size=(size, n_feat + 1))
@@ -104,3 +110,51 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5):
     linreg.coef_ = population[0][1:].reshape(1, -1)
 
     return population, fitness, linreg
+
+
+def predict_future(period, X, model, colname):
+    predictions = []
+    dates = []
+
+    # Ambil indeks terakhir pada data
+    feature = X.iloc[-1:].copy()
+    for _ in range(period):
+        # Prediksi pada masa depan
+        prediction = model.predict(feature)[0][0]
+        
+        # Simpan tanggal dan hasil prediksi
+        feature.index += pd.Timedelta(days=1)
+        predictions.append(prediction)
+        dates.append(feature.index[0])
+
+        # Ganti fitur data dengan hasil prediksi sebelumnya
+        feature = feature.shift(axis=1).replace(np.nan, prediction)
+
+    return pd.DataFrame(predictions, columns=[colname], index=dates)
+
+
+def combine_predictions(period, X_test, rekap, model, model_ga):
+    
+    rekap = rekap[prediction_columns + error_columns]
+
+    # Dapatkan hasil prediksi pada masa depan
+    prediksi_lanjut = predict_future(period=period, 
+                                     X=X_test, 
+                                     model=model,
+                                     colname="MLR Without Genetic")
+
+    prediksi_lanjut_ga = predict_future(period=period, 
+                                        X=X_test, 
+                                        model=model_ga,
+                                        colname="MLR With Genetic")
+    
+    # Gabungkan hasil prediksi
+    prediksi_lanjut_gabungan = pd.concat([prediksi_lanjut, prediksi_lanjut_ga], axis=1)
+    dates_str = [date.strftime("%Y-%m-%d") for date in prediksi_lanjut_gabungan.index]
+    prediksi_lanjut_gabungan.index = dates_str
+    prediksi_df = rekap.append(prediksi_lanjut_gabungan)
+    
+    # DataFrame pada waktu tertentu
+    prediksi_tertentu_df = prediksi_df.iloc[-period * 2:]
+
+    return prediksi_tertentu_df

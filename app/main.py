@@ -2,9 +2,10 @@ import streamlit as st
 from sklearn.linear_model import LinearRegression
 from views import (
     InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, 
-    MetricsReport, ComparationReport, BarChartError, LineChartError)
+    MetricsReport, ComparationReport, BarChartError, LineChartError,
+    PredictionBoard)
 from src.data import load_data
-from src.models import gen_algo
+from src.models import gen_algo, combine_predictions
 from src.pre import preprocess_data
 
 
@@ -62,7 +63,10 @@ train_info = InfoBoardWithButton(
     )
 is_train = train_info.build()
 
-if st.session_state.get("size") and st.session_state.get("test_size") and is_train:
+
+has_set_params = st.session_state.get("size") and st.session_state.get("test_size") and is_train
+
+if has_set_params:
     # Latih Regresi Linier
     linreg_beli = LinearRegression().fit(beli_train["X_train"], beli_train["y_train"])
     linreg_jual = LinearRegression().fit(jual_train["X_train"], jual_train["y_train"])
@@ -131,6 +135,7 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
         model_ga=st.session_state["linreg_beli_ga"],
         **beli_test)
     rekap_beli = compar_beli.build()
+    st.session_state["rekap_beli"] = rekap_beli
 
     compar_jual = ComparationReport(
         title="Perbandingan pada Harga Jual",
@@ -138,6 +143,7 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
         model_ga=st.session_state["linreg_jual_ga"],
         **jual_test)
     rekap_jual = compar_jual.build()
+    st.session_state["rekap_jual"] = rekap_jual
     st.markdown("#")
 
 
@@ -154,3 +160,21 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
 
     line_chart_jual = LineChartError(title="Diagram Garis Error pada Harga Jual", rekap=rekap_jual)
     line_chart_jual.build()
+
+
+# View - Prediksi Jangka Waktu Tertentu
+papan_prediksi = PredictionBoard(
+    title="Prediksi Masa Depan pada Jangka Waktu Tertentu", 
+    desc="Masukkan berapa jangka waktu untuk diprediksi")
+periode_input = papan_prediksi.build()
+
+if periode_input and any(st.session_state.get("rekap_beli")):
+    st.session_state.update(periode_input)
+    predict_period_df = combine_predictions(
+        period=st.session_state["period"], 
+        X_test=beli_test["X_test"], 
+        rekap=st.session_state["rekap_beli"],
+        model=st.session_state["linreg_beli"],
+        model_ga=st.session_state["linreg_beli_ga"])
+
+    st.dataframe(predict_period_df)
