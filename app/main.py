@@ -1,9 +1,10 @@
 import streamlit as st
 from sklearn.linear_model import LinearRegression
-from views import InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, MetricsReport
+from views import InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, MetricsReport, ComparationReport
 from src.data import load_data
 from src.models import gen_algo
 from src.pre import preprocess_data
+
 
 # Data - Muat Data
 df = load_data()
@@ -117,3 +118,25 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
         **jual_test
         )
     error_linreg_ga_jual.build()
+    st.markdown("#")
+
+
+    # View - Laporan Hasil Perbandingan
+    st.subheader("Perbandingan")
+    compar_beli = ComparationReport(
+        title="Perbandingan pada Harga Beli",
+        model=st.session_state["linreg_beli"], 
+        model_ga=st.session_state["linreg_beli_ga"],
+        **beli_test)
+    compar_beli.build()
+
+    compar_jual = ComparationReport(
+        title="Perbandingan pada Harga Jual",
+        model=st.session_state["linreg_jual"], 
+        model_ga=st.session_state["linreg_jual_ga"],
+        **jual_test)
+    compar_jual.build()
+
+
+    # View - Visualisasi Diagram Garis dan Batang Error
+    

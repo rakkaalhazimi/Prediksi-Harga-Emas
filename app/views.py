@@ -1,8 +1,8 @@
 from abc import abstractmethod
-import json
 import streamlit as st
-import pandas as pd
+import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
+from src.visualization import compar_table
 
 
 
@@ -146,6 +146,29 @@ class MetricsReport(ViewElement):
         self.intercept = Component(st.write, "Intersep")
          
         self.comps = [self.r2, self.mse, self.rmse]
+
+
+    def build(self) -> None:
+        with st.expander(self.title):
+            for comp in self.comps:
+                comp.show()
+
+
+class ComparationReport(ViewElement):
+    def __init__(self, title, X_test, y_test, model, model_ga) -> None:
+        self.title = title
+        rekap = compar_table(X_test, y_test, model, model_ga)
+        mean_mse_error = rekap["Error MSE MLR"].mean()
+        mean_rmse_error = np.sqrt(mean_mse_error)
+        mean_ga_mse_error = rekap["Error MSE MLR+Genetic"].mean()
+        mean_ga_rmse_error = np.sqrt(mean_ga_mse_error)
+
+        self.rekap = Component(st.dataframe, rekap.style.format(precision=2))
+        self.mse = Component(st.metric, label="Rata-rata error MSE tanpa algoritma genetika", value="{:.2f}".format(mean_mse_error))
+        self.mse_ga = Component(st.metric, label="Rata-rata error MSE dengan algoritma genetika", value="{:.2f}".format(mean_ga_mse_error))
+        self.rmse = Component(st.metric, label="Rata-rata error RMSE tanpa algoritma genetika", value="{:.2f}".format(mean_rmse_error))
+        self.rmse_ga = Component(st.metric, label="Rata-rata error RMSE dengan algoritma genetika", value="{:.2f}".format(mean_ga_rmse_error))
+        self.comps = [self.rekap, self.mse, self.mse_ga, self.rmse, self.rmse_ga]
 
 
     def build(self) -> None:
