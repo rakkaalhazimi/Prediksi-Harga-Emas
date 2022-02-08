@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure
 from bokeh.models import Legend
 from bokeh.palettes import Category10_4
 from bokeh.transform import dodge
