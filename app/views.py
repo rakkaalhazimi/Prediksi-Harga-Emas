@@ -1,15 +1,16 @@
 from abc import abstractmethod
+from typing import Any
 import streamlit as st
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
-from src.visualization import compar_table
+from src.visualization import compar_table, error_bar_chart
 
 
 
 class ViewElement:
 
     @abstractmethod
-    def build(self):
+    def build(self) -> Any:
         ...
 
 
@@ -54,7 +55,7 @@ class InfoBoardWithButton(ViewElement):
         self.button = Component(st.button, btn_label)
         self.comps = [self.title, self.desc]
 
-    def build(self) -> None:
+    def build(self) -> bool:
         st.markdown("#")
         for comp in self.comps:
             comp.show()
@@ -157,21 +158,33 @@ class MetricsReport(ViewElement):
 class ComparationReport(ViewElement):
     def __init__(self, title, X_test, y_test, model, model_ga) -> None:
         self.title = title
-        rekap = compar_table(X_test, y_test, model, model_ga)
-        mean_mse_error = rekap["Error MSE MLR"].mean()
+        self.rekap = compar_table(X_test, y_test, model, model_ga)
+        mean_mse_error = self.rekap["Error MSE MLR"].mean()
         mean_rmse_error = np.sqrt(mean_mse_error)
-        mean_ga_mse_error = rekap["Error MSE MLR+Genetic"].mean()
+        mean_ga_mse_error = self.rekap["Error MSE MLR+Genetic"].mean()
         mean_ga_rmse_error = np.sqrt(mean_ga_mse_error)
 
-        self.rekap = Component(st.dataframe, rekap.style.format(precision=2))
+        self.table = Component(st.dataframe, self.rekap.style.format(precision=2))
         self.mse = Component(st.metric, label="Rata-rata error MSE tanpa algoritma genetika", value="{:.2f}".format(mean_mse_error))
         self.mse_ga = Component(st.metric, label="Rata-rata error MSE dengan algoritma genetika", value="{:.2f}".format(mean_ga_mse_error))
         self.rmse = Component(st.metric, label="Rata-rata error RMSE tanpa algoritma genetika", value="{:.2f}".format(mean_rmse_error))
         self.rmse_ga = Component(st.metric, label="Rata-rata error RMSE dengan algoritma genetika", value="{:.2f}".format(mean_ga_rmse_error))
-        self.comps = [self.rekap, self.mse, self.mse_ga, self.rmse, self.rmse_ga]
+        self.comps = [self.table, self.mse, self.mse_ga, self.rmse, self.rmse_ga]
 
 
-    def build(self) -> None:
+    def build(self) -> Any:
         with st.expander(self.title):
             for comp in self.comps:
                 comp.show()
+
+        return self.rekap
+
+
+class BarChartError(ViewElement):
+    def __init__(self, title, rekap) -> None:
+        self.title = title
+        self.rekap = rekap
+
+    def build(self) -> None:
+        chart = error_bar_chart(self.rekap)
+        st.bokeh_chart(chart)
