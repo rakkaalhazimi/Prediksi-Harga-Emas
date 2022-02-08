@@ -3,7 +3,7 @@ from typing import Any
 import streamlit as st
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
-from src.visualization import compar_table, error_bar_chart, error_line_chart
+from src.visualization import compar_table, error_bar_chart, error_line_chart, predictions_line_chart
 
 
 
@@ -231,15 +231,15 @@ class PredictionBoard(ViewElement):
 
 
 class PredictionReport(ViewElement):
-    def __init__(self, title, X_test, rekap, model, model_ga) -> None:
+    def __init__(self, title, predictions) -> None:
         self.title = title
-        
-        self.comps = [self.table, self.mse, self.mse_ga, self.rmse, self.rmse_ga]
+        chart = predictions_line_chart(predictions)
+        self.predictions = Component(st.dataframe, predictions.style.format(precision=2))
+        self.chart = Component(st.bokeh_chart, chart)
+        self.comps = [self.chart, self.predictions]
 
 
     def build(self) -> Any:
         with st.expander(self.title):
             for comp in self.comps:
                 comp.show()
-
-        return self.rekap

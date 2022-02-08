@@ -3,7 +3,7 @@ from sklearn.linear_model import LinearRegression
 from views import (
     InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, 
     MetricsReport, ComparationReport, BarChartError, LineChartError,
-    PredictionBoard)
+    PredictionBoard, PredictionReport)
 from src.data import load_data
 from src.models import gen_algo, combine_predictions
 from src.pre import preprocess_data
@@ -170,11 +170,27 @@ periode_input = papan_prediksi.build()
 
 if periode_input and any(st.session_state.get("rekap_beli")):
     st.session_state.update(periode_input)
-    predict_period_df = combine_predictions(
+    
+    predict_period_beli = combine_predictions(
         period=st.session_state["period"], 
         X_test=beli_test["X_test"], 
         rekap=st.session_state["rekap_beli"],
         model=st.session_state["linreg_beli"],
         model_ga=st.session_state["linreg_beli_ga"])
 
-    st.dataframe(predict_period_df)
+    predict_period_jual = combine_predictions(
+        period=st.session_state["period"], 
+        X_test=beli_test["X_test"], 
+        rekap=st.session_state["rekap_jual"],
+        model=st.session_state["linreg_jual"],
+        model_ga=st.session_state["linreg_jual_ga"])
+
+    predict_beli_depan = PredictionReport(
+        title="Prediksi Harga Beli pada Jangka Waktu {} hari".format(st.session_state["period"]),
+        predictions=predict_period_beli)
+    predict_beli_depan.build()
+
+    predict_beli_depan = PredictionReport(
+        title="Prediksi Harga Jual pada Jangka Waktu {} hari".format(st.session_state["period"]),
+        predictions=predict_period_jual)
+    predict_beli_depan.build()
