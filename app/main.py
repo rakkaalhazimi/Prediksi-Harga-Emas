@@ -168,7 +168,7 @@ papan_prediksi = PredictionBoard(
     desc="Masukkan berapa jangka waktu untuk diprediksi")
 periode_input = papan_prediksi.build()
 
-if periode_input and any(st.session_state.get("rekap_beli")):
+if periode_input and st.session_state.get("rekap_beli") is not None:
     st.session_state.update(periode_input)
     
     predict_period_beli = combine_predictions(
