@@ -3,7 +3,7 @@ from typing import Any
 import streamlit as st
 import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error
-from src.visualization import compar_table, error_bar_chart
+from src.visualization import compar_table, error_bar_chart, error_line_chart
 
 
 
@@ -186,5 +186,17 @@ class BarChartError(ViewElement):
         self.rekap = rekap
 
     def build(self) -> None:
-        chart = error_bar_chart(self.rekap)
-        st.bokeh_chart(chart)
+        chart = error_bar_chart(rekap=self.rekap)
+        with st.expander(self.title):
+            st.bokeh_chart(chart)
+
+
+class LineChartError(ViewElement):
+    def __init__(self, title, rekap) -> None:
+        self.title = title
+        self.rekap = rekap
+
+    def build(self) -> None:
+        chart = error_line_chart(rekap=self.rekap)
+        with st.expander(self.title):
+            st.bokeh_chart(chart)

@@ -2,7 +2,7 @@ import streamlit as st
 from sklearn.linear_model import LinearRegression
 from views import (
     InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, 
-    MetricsReport, ComparationReport, BarChartError)
+    MetricsReport, ComparationReport, BarChartError, LineChartError)
 from src.data import load_data
 from src.models import gen_algo
 from src.pre import preprocess_data
@@ -143,5 +143,14 @@ if st.session_state.get("size") and st.session_state.get("test_size") and is_tra
 
     # View - Visualisasi Diagram Garis dan Batang Error
     st.subheader("Visualisasi Error")
-    bar_chart = BarChartError(title="Diagram Batang Error pada Harga Beli", rekap=rekap_beli)
-    bar_chart.build()
+    bar_chart_beli = BarChartError(title="Diagram Batang Error pada Harga Beli", rekap=rekap_beli)
+    bar_chart_beli.build()
+
+    bar_chart_jual = BarChartError(title="Diagram Batang Error pada Harga Jual", rekap=rekap_jual)
+    bar_chart_jual.build()
+
+    line_chart_beli = LineChartError(title="Diagram Garis Error pada Harga Beli", rekap=rekap_beli)
+    line_chart_beli.build()
+
+    line_chart_jual = LineChartError(title="Diagram Garis Error pada Harga Jual", rekap=rekap_jual)
+    line_chart_jual.build()
