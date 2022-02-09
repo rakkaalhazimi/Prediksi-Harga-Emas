@@ -1,11 +1,12 @@
+import pandas as pd
 import streamlit as st
 from sklearn.linear_model import LinearRegression
 from views import (
     InfoBoard, InfoBoardWithButton, GAParam, PreParam, Header, 
     MetricsReport, ComparationReport, BarChartError, LineChartError,
-    PredictionBoard, PredictionReport)
+    PredictionBoard, PredictionReport, FitnessReport, DatePredictionBoard)
 from src.data import load_data
-from src.models import gen_algo, combine_predictions
+from src.models import gen_algo, combine_predictions, prediction_date_based
 from src.pre import preprocess_data
 
 
@@ -80,7 +81,7 @@ if has_set_params:
         "mr": st.session_state.get("mr"),
     }
     population_beli, fitness_beli, linreg_beli_ga = gen_algo(**ga_input, **beli_train)
-    population_jual, fitness_jual, linreg_jual_ga = gen_algo(**ga_input, **beli_train)
+    population_jual, fitness_jual, linreg_jual_ga = gen_algo(**ga_input, **jual_train)
 
     # Simpan hasil train ke dalam session
     st.session_state["populasi_beli"] = population_beli
@@ -126,6 +127,22 @@ if has_set_params:
     error_linreg_ga_jual.build()
     st.markdown("#")
 
+    # View - Laporan Hasil Perbandingan
+    st.subheader("Nilai Fitness")
+    fitness_beli_report = FitnessReport(
+        title="Nilai Fitness pada Harga Beli", 
+        label="Fitness", 
+        fitness=st.session_state["fitness_beli"][0]
+        )
+    fitness_beli_report.build()
+
+    fitness_jual_report = FitnessReport(
+        title="Nilai Fitness pada Harga Jual", 
+        label="Fitness", 
+        fitness=st.session_state["fitness_jual"][0]
+        )
+    fitness_jual_report.build()
+    st.markdown("#")
 
     # View - Laporan Hasil Perbandingan
     st.subheader("Perbandingan")
@@ -194,3 +211,26 @@ if periode_input and st.session_state.get("rekap_beli") is not None:
         title="Prediksi Harga Jual pada Jangka Waktu {} hari".format(st.session_state["period"]),
         predictions=predict_period_jual)
     predict_beli_depan.build()
+
+# View - Prediksi pada Tanggal Tertentu
+if st.session_state.get("rekap_beli") is not None:
+    date_predicts = DatePredictionBoard(
+        title="Prediksi pada Tanggal Tertentu", 
+        desc="Masukkan tanggal prediksi",
+        min_value=beli_train["y_train"].index[0],
+        max_value=beli_test["y_test"].index[-1] + pd.Timedelta(days=30)
+        )
+
+    date_input = date_predicts.build()
+
+    if date_input:
+        predictions_date = prediction_date_based(
+            date=date_input["date"], 
+            X=beli_train["X_train"].append(beli_test["X_test"]),
+            y=beli_train["y_train"].append(beli_test["y_test"]),
+            model=st.session_state["linreg_beli"],
+            model_ga=st.session_state["linreg_beli_ga"]
+            )
+
+        st.write("Prediksi pada {:%d %B %Y}".format(date_input["date"]))
+        predictions_date

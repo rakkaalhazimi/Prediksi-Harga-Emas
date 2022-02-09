@@ -130,6 +130,18 @@ class GAParam(ViewElement):
             return params
 
 
+class FitnessReport(ViewElement):
+    def __init__(self, title, label, fitness) -> None:
+        self.title = title
+        self.fitness = Component(st.metric, label=label, value=fitness)
+        self.comps = [self.fitness]
+
+    def build(self) -> None:
+        with st.expander(self.title):
+            for comp in self.comps:
+                comp.show()
+
+
 class MetricsReport(ViewElement):
     def __init__(self, title, model, X_test, y_test) -> None:
         self.title = title
@@ -243,3 +255,31 @@ class PredictionReport(ViewElement):
         with st.expander(self.title):
             for comp in self.comps:
                 comp.show()
+
+
+class DatePredictionBoard(ViewElement):
+    def __init__(self, title, desc, min_value, max_value) -> None:
+        self.title = Component(st.subheader, title)
+        self.desc = Component(st.write, desc)
+        self.date = Component(st.date_input, label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
+        self.submit = Component(st.form_submit_button, label="Prediksi")
+
+        self.comps = [self.date]
+        self.pnames = ["date"]
+
+    def build(self) -> dict:
+        st.markdown("#")
+        self.title.show()
+        self.desc.show()
+
+        params = {}
+
+        with st.form("ParameterDate"):
+            for key, comp in zip(self.pnames, self.comps):
+                val = comp.show()
+                params[key] = val
+
+            is_submit = self.submit.show()
+
+        if is_submit:
+            return params

@@ -158,3 +158,33 @@ def combine_predictions(period, X_test, rekap, model, model_ga):
     prediksi_tertentu_df = prediksi_df.iloc[-period * 2:]
 
     return prediksi_tertentu_df
+
+
+def prediction_date_based(date, X, y, model, model_ga):
+    
+    # Copy Dataframe
+    pd_date = pd.to_datetime(date, format="%Y-%m-%d")
+    X = X.copy()
+    
+    # Jika dalam jangkauan data
+    if pd_date <= X.index[-1]:
+        # Fitur data
+        feature = X.loc[pd_date: pd_date + pd.Timedelta(days=1)]
+
+        # Prediksi
+        predictions = y.copy().loc[pd_date: pd_date + pd.Timedelta(days=0)]
+        predictions.columns = ["Y_actual"]
+        predictions["MLR Without GA"] = model.predict(feature)[0][0]
+        predictions["MLR With Genetic"] = model_ga.predict(feature)[0][0]
+
+    # Jika pada masa depan
+    else:
+        steps = pd_date - X.index[-1]
+        steps = steps.days
+        predictions = predict_future(steps, X, model, "MLR Without GA")
+        predictions_ga = predict_future(steps, X, model_ga, "MLR With Genetic")
+        predictions = pd.concat([predictions, predictions_ga], axis=1).iloc[-1:]
+
+    predictions.index = [date.strftime("%Y-%m-%d") for date in predictions.index]
+
+    return predictions
