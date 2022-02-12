@@ -104,8 +104,8 @@ class GAParam(ViewElement):
         Setelah parameter ditentukan, klik 'Konfirmasi'.
         """
         )
-        self.generation = Component(st.number_input, label="Jumlah Generasi", min_value=10, max_value=100, step=10)
-        self.size = Component(st.number_input, label="Ukuran Populasi", min_value=100, max_value=1500, step=100)
+        self.generation = Component(st.number_input, label="Jumlah Generasi", min_value=10, step=10)
+        self.size = Component(st.number_input, label="Ukuran Populasi", min_value=100, step=100)
         self.cr = Component(st.number_input, label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
         self.mr = Component(st.number_input, label="Mutation Rate", min_value=0.0, max_value=1.0, step=0.1)
         self.submit = Component(st.form_submit_button, label="Konfirmasi")
