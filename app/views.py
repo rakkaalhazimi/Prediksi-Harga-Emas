@@ -1,11 +1,21 @@
 from abc import abstractmethod
 from typing import Any
+
 import streamlit as st
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
 
+from src.data import load_data
+from src.models import gen_algo
+from src.pre import preprocess_data
 from src.visualization import compar_table, error_bar_chart, error_line_chart, predictions_line_chart
+
+
+# Inisiasi
+df = load_data()
+session = st.session_state
 
 
 def wrap_view(title):
@@ -62,13 +72,13 @@ def view_dataset_type():
         """)
         csv_file = st.file_uploader(label="Unggah file `.csv`", type="csv")
         if csv_file:
-            st.session_state["custom_dataset"] = csv_file
-            st.session_state["dataset_type"] = "Custom"
+            session["custom_dataset"] = csv_file
+            session["dataset_type"] = "Custom"
     
     else:
         st.write("Anda akan menggunakan dataset asli dari server")
-        st.session_state["dataset_type"] = "Asli"
-        st.session_state["custom_dataset"] = None
+        session["dataset_type"] = "Asli"
+        session["custom_dataset"] = None
 
 
 @wrap_view(title="Parameter")
@@ -88,18 +98,25 @@ def view_parameter():
         is_submit = st.form_submit_button("Simpan")
     
     if is_submit:
-        st.session_state["test"] = test_size
-        st.session_state["gen"] = generation
-        st.session_state["size"] = size
-        st.session_state["cr"] = cr
-        st.session_state["mr"] = mr
+        session["test"] = test_size
+        session["n_gen"] = generation
+        session["size"] = size
+        session["cr"] = cr
+        session["mr"] = mr
+
+        beli_train, beli_test, jual_train, jual_test = preprocess_data(df, session["test"])
+        
+        session["beli_train"] = beli_train
+        session["beli_test"] = beli_test
+        session["jual_train"] = jual_train
+        session["jual_test"] = jual_test
 
 
 @wrap_view("Latih Model")
 def view_train():
-    prerequisites = ["dataset_type", "test", "gen", "cr", "mr"]
-    data = [str(st.session_state.get(req, "-belum ditentukan-")) for req in prerequisites]
-    index = ["Tipe Dataset", "Jumlah Generasi", "Ukuran Populasi", "Crossover Rate", "Mutation Rate"]
+    prerequisites = ["dataset_type", "test", "n_gen", "size", "cr", "mr"]
+    data = [str(session.get(req, "-belum ditentukan-")) for req in prerequisites]
+    index = ["Tipe Dataset", "Ukuran Data Test", "Jumlah Generasi", "Ukuran Populasi", "Crossover Rate", "Mutation Rate"]
     
     st.markdown("""
     Pastikan anda telah memilih tipe dataset dan parameter sebelum mulai melatih model.
@@ -108,14 +125,32 @@ def view_train():
     st.table(pd.DataFrame(data, index=index, columns=["Nilai"]))
 
     is_train = st.button("Latih")
-    if is_train and not st.session_state.get("test"):
+    st.markdown("#")
+    if is_train and not session.get("test"):
         st.warning("Parameter belum ditentukan")
-    elif is_train and st.session_state.get("test"):
-        st.info("Melatih...")
-        train_bar = st.progress(0)
+    elif is_train and session.get("test"):
+        
+        # Train Linreg
+        linreg_beli = LinearRegression().fit(session["beli_train"]["X_train"], session["beli_train"]["y_train"])
+        linreg_jual = LinearRegression().fit(session["jual_train"]["X_train"], session["jual_train"]["y_train"])
 
-        for percent_complete in range(100):
-            train_bar.progress(percent_complete + 1)
+        # Train GA
+        ga_input = dict(size=session["size"], 
+                        n_gen=session["n_gen"], 
+                        cr=session["cr"], 
+                        mr=session["mr"])
+
+        population_beli, fitness_beli, linreg_beli_ga = gen_algo(**ga_input, **session["beli_train"], mode="beli")
+        population_jual, fitness_jual, linreg_jual_ga = gen_algo(**ga_input, **session["jual_train"], mode="jual")
+
+        session["fitness_beli"] = fitness_beli[0]
+        session["fitness_jual"] = fitness_jual[0]
+        session["linreg_beli"] = linreg_beli
+        session["linreg_jual"] = linreg_jual
+        session["linreg_beli_ga"] = linreg_beli_ga
+        session["linreg_jual_ga"] = linreg_jual_ga
+
+            
 
 
     # warnings = {
@@ -124,7 +159,7 @@ def view_train():
     # }
     # prerequisites = ["dataset_type", "test"]
     # for req in prerequisites:
-    #     if not st.session_state.get(req):
+    #     if not session.get(req):
     #         st.warning("{} belum ditentukan.".format(warnings[req]))
     #         break
 

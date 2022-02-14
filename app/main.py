@@ -12,8 +12,7 @@ from src.pre import preprocess_data
 
 css_style()
 
-# Data - Muat Data
-df = load_data()
+
 
 view_home()
 view_tutorial()

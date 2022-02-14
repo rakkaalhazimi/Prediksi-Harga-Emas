@@ -60,7 +60,7 @@ def mutation(chrom, mutation_rate=0.9):
 
 
 @st.cache(suppress_st_warning=True)
-def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5):
+def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     print("START")
     # Hitung jumlah fitur
     n_feat = X_train.shape[1]
@@ -71,13 +71,17 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5):
     # Bangkitkan kromosom secara acak
     population = create_population(size, n_feat)
 
-    for i in range(n_gen):
+    # Sematkan progress bar
+    st.write("Regresi Linier GA pada harga {}".format(mode))
+    train_bar = st.progress(0.0)
+
+    for iter_ in range(n_gen):
         # Hitung skor fitness masing-masing kromosom
         population, fitness = get_fitness(population, X_train, y_train)
 
         # Catat populasi dan fitness setiap 10 iterasi
-        if (i + 1) % 10 == 0:
-            print(f"Iteration {i + 1}")
+        if (iter_ + 1) % 10 == 0:
+            print(f"Iteration {iter_ + 1}")
             print("=" * 20)
             print(f"Best chromosome:\n{population[0]}")
             print(f"Best fitness:\n{fitness[0]}")
@@ -86,7 +90,7 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5):
         # Simpan 2 kromosom terbaik untuk generasi berikutnya
         next_gen = list(population[:2])
 
-        for i in range( int(size / 2) - 1 ):
+        for _ in range( int(size / 2) - 1 ):
             
             # Seleksi 2 kromosom secara acak
             parents_a, parents_b = selection_pair(population, fitness)
@@ -104,6 +108,9 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5):
 
         # Perbarui populasi lama dengan populasi baru
         population = np.array(next_gen)
+
+        # Perbarui progress bar
+        train_bar.progress( (iter_ + 1) / n_gen )
 
     # Optimasi parameter regresi
     linreg.intercept_ = population[0][0:1]
