@@ -51,6 +51,7 @@ def view_tutorial():
 def view_dataset_type():
     st.write("Pilih salah satu dari tipe dibawah")
     option = st.radio(label="Tipe Dataset", options=["Asli", "Custom"])
+
     if option == "Custom":
         st.markdown("""
         Pastikan bahwa data memiliki:
@@ -60,10 +61,13 @@ def view_dataset_type():
         #
         """)
         csv_file = st.file_uploader(label="Unggah file `.csv`", type="csv")
-        st.session_state["custom_dataset"] = None if csv_file is None else csv_file
+        if csv_file:
+            st.session_state["custom_dataset"] = csv_file
+            st.session_state["dataset_type"] = "Custom"
     
     else:
         st.write("Anda akan menggunakan dataset asli dari server")
+        st.session_state["dataset_type"] = "Asli"
         st.session_state["custom_dataset"] = None
 
 
@@ -90,6 +94,42 @@ def view_parameter():
         st.session_state["cr"] = cr
         st.session_state["mr"] = mr
 
+
+@wrap_view("Latih Model")
+def view_train():
+    prerequisites = ["dataset_type", "test", "gen", "cr", "mr"]
+    data = [str(st.session_state.get(req, "-belum ditentukan-")) for req in prerequisites]
+    index = ["Tipe Dataset", "Jumlah Generasi", "Ukuran Populasi", "Crossover Rate", "Mutation Rate"]
+    
+    st.markdown("""
+    Pastikan anda telah memilih tipe dataset dan parameter sebelum mulai melatih model.
+    Jika sudah, tekan tombol `Latih` untuk mulai melatih model.
+    """)
+    st.table(pd.DataFrame(data, index=index, columns=["Nilai"]))
+
+    is_train = st.button("Latih")
+    if is_train and not st.session_state.get("test"):
+        st.warning("Parameter belum ditentukan")
+    elif is_train and st.session_state.get("test"):
+        st.info("Melatih...")
+        train_bar = st.progress(0)
+
+        for percent_complete in range(100):
+            train_bar.progress(percent_complete + 1)
+
+
+    # warnings = {
+    #     "dataset_type": "Tipe Dataset",
+    #     "test": "Parameter"
+    # }
+    # prerequisites = ["dataset_type", "test"]
+    # for req in prerequisites:
+    #     if not st.session_state.get(req):
+    #         st.warning("{} belum ditentukan.".format(warnings[req]))
+    #         break
+
+    # else:
+    #     st.subheader("Latih Model")
 
 class ViewElement:
 
