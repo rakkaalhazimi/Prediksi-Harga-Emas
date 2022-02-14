@@ -2,9 +2,93 @@ from abc import abstractmethod
 from typing import Any
 import streamlit as st
 import numpy as np
+import pandas as pd
 from sklearn.metrics import r2_score, mean_squared_error
+
 from src.visualization import compar_table, error_bar_chart, error_line_chart, predictions_line_chart
 
+
+def wrap_view(title):
+    def decorate(func):
+        def content_view():
+            with st.expander(title):
+                func()
+        return content_view
+    return decorate
+    
+
+def view_home():
+    st.title("Prediksi Harga Emas")
+    st.markdown("""
+    ---
+    Aplikasi untuk melakukan prediksi pada harga beli dan harga jual emas. Model machine learning
+    yang digunakan adalah regresi linier dan regresi linier dengan optimalisasi algoritma genetika.
+    Pelatihan model dilakukan dengan menggunakan dataset harga emas pada kurun waktu `1 Januari 2017`
+    hingga `31 Juli 2021`.
+
+    Adapun fitur-fitur yang terdapat pada aplikasi ini adalah:
+    - Prediksi harga emas pada jangka waktu tertentu.
+    - Prediksi harga emas pada tanggal tertentu.
+
+    #
+    """)
+
+
+def view_tutorial():
+    st.subheader("Cara Penggunaan")
+    st.markdown("""
+    Prediksi Harga Emas dapat dilakukan dengan langkah-langkah sebagai berikut:
+    - Memilih dataset asli atau custom dari pengguna. 
+    - Memasukkan parameter training dan algoritma genetika.
+    - Melatih model dengan parameter yang ditentukan.
+    - Mulai Prediksi.
+
+    #
+    """)
+
+
+@wrap_view(title="Tipe Dataset")
+def view_dataset_type():
+    st.write("Pilih salah satu dari tipe dibawah")
+    option = st.radio(label="Tipe Dataset", options=["Asli", "Custom"])
+    if option == "Custom":
+        st.markdown("""
+        Pastikan bahwa data memiliki:
+        - 2 kolom dengan nama `HargaBeli` dan `HargaJual` yang berisikan bilangan cacah / bulat
+        - 1 kolom dengan nama `Date` yang berisikan tanggal dengan format `YYYY-MM-DD`
+        - Jumlah data lebih dari 10
+        #
+        """)
+        csv_file = st.file_uploader(label="Unggah file `.csv`", type="csv")
+        st.session_state["custom_dataset"] = None if csv_file is None else csv_file
+    
+    else:
+        st.write("Anda akan menggunakan dataset asli dari server")
+        st.session_state["custom_dataset"] = None
+
+
+@wrap_view(title="Parameter")
+def view_parameter():
+    with st.form("Parameter"):
+        st.write("Parameter data")
+        test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
+        st.markdown("")
+
+        st.write("Parameter Algoritma Genetika")
+        generation = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
+        size = st.number_input(label="Ukuran Populasi", min_value=100, step=100)
+        cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
+        mr = st.number_input(label="Mutation Rate", min_value=0.0, max_value=1.0, step=0.1)
+
+
+        is_submit = st.form_submit_button("Simpan")
+    
+    if is_submit:
+        st.session_state["test"] = test_size
+        st.session_state["gen"] = generation
+        st.session_state["size"] = size
+        st.session_state["cr"] = cr
+        st.session_state["mr"] = mr
 
 
 class ViewElement:
