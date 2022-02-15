@@ -5,10 +5,9 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error
 
 from src.data import load_data
-from src.models import gen_algo
+from src.models import gen_algo, evaluate
 from src.pre import preprocess_data
 from src.visualization import compar_table, error_bar_chart, error_line_chart, predictions_line_chart
 
@@ -126,10 +125,11 @@ def view_train():
 
     is_train = st.button("Latih")
     st.markdown("#")
+
     if is_train and not session.get("test"):
         st.warning("Parameter belum ditentukan")
+
     elif is_train and session.get("test"):
-        
         # Train Linreg
         linreg_beli = LinearRegression().fit(session["beli_train"]["X_train"], session["beli_train"]["y_train"])
         linreg_jual = LinearRegression().fit(session["jual_train"]["X_train"], session["jual_train"]["y_train"])
@@ -150,6 +150,34 @@ def view_train():
         session["linreg_beli_ga"] = linreg_beli_ga
         session["linreg_jual_ga"] = linreg_jual_ga
 
+
+
+
+
+@wrap_view("Hasil Evaluasi Model")
+def view_result():
+
+    if session.get("linreg_beli"):
+        col1, col2 = st.columns([6, 6])
+
+        linreg = [session.get("linreg_beli"), session.get("linreg_jual")]
+        linreg_ga = [session.get("linreg_beli_ga"), session.get("linreg_jual_ga")]
+        modes = ["beli_test", "jual_test"]
+
+        for model, model_ga, mode in zip(linreg, linreg_ga, modes):
+            with col1:
+                st.write("Metrik regresi linier pada harga {}".format(mode[:4]))
+                results = evaluate(model, mode=mode)
+                for metric in results:
+                    st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+                st.markdown("---")
+
+            with col2:
+                st.write("Metrik regresi linier + GA pada harga {}".format(mode[:4]))
+                results = evaluate(model_ga, mode=mode)
+                for metric in results:
+                    st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+                st.markdown("---")
             
 
 

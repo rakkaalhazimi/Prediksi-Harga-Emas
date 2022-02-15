@@ -1,9 +1,11 @@
+from sklearn.metrics import r2_score, mean_squared_error
 import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 
+session = st.session_state
 prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
 error_columns = ["Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR", "Error RMSE MLR+Genetic"]
 
@@ -117,6 +119,20 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     linreg.coef_ = population[0][1:].reshape(1, -1)
 
     return population, fitness, linreg
+
+
+def evaluate(model, mode, ga=False):
+    predictions = model.predict(session[mode]["X_test"])
+    true = session[mode]["y_test"]
+
+    r2 = r2_score(true, predictions)
+    mse = mean_squared_error(true, predictions)
+    rmse = mean_squared_error(true, predictions, squared=False)
+
+    return {"r2": r2, "mse": mse, "rmse": rmse}
+
+
+
 
 
 def predict_future(period, X, model, colname):
