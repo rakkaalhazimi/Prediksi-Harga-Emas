@@ -217,9 +217,15 @@ def view_comparison():
 @is_trained
 def view_charts():
 
-    rekap = session["rekap_beli"]
-    chart = error_bar_chart(rekap=rekap)
-    st.bokeh_chart(chart)
+    chart_functs = [("Batang", error_bar_chart), ("Garis", error_line_chart)]
+
+    for shape, func in chart_functs:
+        for mode in MODES:
+            st.markdown("**Diagram {} MSE pada harga {}**".format(shape, mode))
+            rekap = session["rekap_{}".format(mode)]
+            chart = func(rekap=rekap)
+            st.bokeh_chart(chart)
+            st.write("")
 
     # warnings = {
     #     "dataset_type": "Tipe Dataset",
