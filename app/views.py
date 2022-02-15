@@ -183,7 +183,7 @@ def view_result():
             
             for metric in results:
                 st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-            st.write("-")
+            st.write("--")
             st.markdown("---")
 
         with col2:
@@ -236,8 +236,16 @@ def view_charts():
 @wrap_view("Prediksi Jangka Waktu Tertentu")
 @is_trained
 def view_predict_period():
-    period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
-    session["period"] = period
+    with st.form("Period"):
+        period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
+        is_submit = st.form_submit_button("Konfirmasi")
+    st.markdown("#")
+    
+    if is_submit:
+        session["period"] = period
+
+    else:
+        return
     
     for mode in MODES:
 
@@ -248,8 +256,14 @@ def view_predict_period():
             model=session["linreg_{}".format(mode)],
             model_ga=session["linreg_{}_ga".format(mode)]
         )
-        
-        st.dataframe(predict_period)
+        chart = predictions_line_chart(predict_period)
+
+        st.markdown("**Tabel prediksi harga {} pada jangka waktu {} hari**".format(mode, period))
+        st.dataframe(predict_period.style.format(precision=2))
+        st.markdown("##")
+        st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
+        st.bokeh_chart(chart)
+        st.markdown("#")
 
 
 

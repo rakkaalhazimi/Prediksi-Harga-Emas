@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from sklearn.linear_model import LinearRegression
+
 from views import *
 from styles import css_style
 from src.data import load_data
