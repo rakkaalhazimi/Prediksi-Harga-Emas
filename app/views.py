@@ -25,6 +25,16 @@ def wrap_view(title):
                 func()
         return content_view
     return decorate
+
+
+def is_trained(func):
+    def decorate(*args, **kwargs):
+        if session.get("linreg_beli"):
+            func(*args, **kwargs)
+        else:
+            st.write("Model belum dilatih.")
+
+    return decorate
     
 
 def view_home():
@@ -156,57 +166,60 @@ def view_train():
 
 
 @wrap_view("Hasil Evaluasi Model")
+@is_trained
 def view_result():
 
-    if session.get("linreg_beli"):
-        col1, col2 = st.columns([6, 6])
+    col1, col2 = st.columns([6, 6])
 
-        for mode in MODES:
-            with col1:
-                st.write("Metrik regresi linier pada harga {}".format(mode))
-                results = evaluate(session["linreg_{}".format(mode)], mode="{}_test".format(mode))
-                
-                for metric in results:
-                    st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-                st.write("-")
-                st.markdown("---")
+    for mode in MODES:
+        with col1:
+            st.write("Metrik regresi linier pada harga {}".format(mode))
+            results = evaluate(session["linreg_{}".format(mode)], mode="{}_test".format(mode))
+            
+            for metric in results:
+                st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+            st.write("-")
+            st.markdown("---")
 
-            with col2:
-                st.write("Metrik regresi linier + GA pada harga {}".format(mode))
-                results = evaluate(session["linreg_{}_ga".format(mode)], mode="{}_test".format(mode))
-                
-                for metric in results:
-                    st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-                st.write("Fitness {} : {:.4f}".format(mode, session["fitness_{}".format(mode)]))
-                st.markdown("---")
-    
-    else:
-        st.write("Model belum dilatih.")
+        with col2:
+            st.write("Metrik regresi linier + GA pada harga {}".format(mode))
+            results = evaluate(session["linreg_{}_ga".format(mode)], mode="{}_test".format(mode))
+            
+            for metric in results:
+                st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+            st.write("Fitness {} : {:.4f}".format(mode, session["fitness_{}".format(mode)]))
+            st.markdown("---")
 
 
 @wrap_view(title="Perbandingan Prediksi")
+@is_trained
 def view_comparison():
 
-    if session.get("linreg_beli"):
-        for mode in MODES:
-            st.markdown("**Prediksi pada harga {}**".format(mode))
-            rekap, rekap_show = compar_table(
-                model=session["linreg_{}".format(mode)], 
-                model_ga=session["linreg_{}_ga".format(mode)], 
-                **session["{}_test".format(mode)]
-            )
-            st.dataframe(rekap_show)
+    for mode in MODES:
+        st.markdown("**Prediksi pada harga {}**".format(mode))
+        rekap, rekap_show = compar_table(
+            model=session["linreg_{}".format(mode)], 
+            model_ga=session["linreg_{}_ga".format(mode)], 
+            **session["{}_test".format(mode)]
+        )
+        session["rekap_{}".format(mode)] = rekap
+        st.dataframe(rekap_show)
 
-            errors = compar_error(rekap)
-            for label in errors:
-                st.write("{} : {:.3f}".format(label, errors[label]))
+        errors = compar_error(rekap)
+        for label in errors:
+            st.write("{} : {:.3f}".format(label, errors[label]))
 
-            st.markdown("#")
+        st.markdown("#")
 
-    else:
-        st.write("Model belum dilatih.")
             
 
+@wrap_view("Visualisasi Error")
+@is_trained
+def view_charts():
+
+    rekap = session["rekap_beli"]
+    chart = error_bar_chart(rekap=rekap)
+    st.bokeh_chart(chart)
 
     # warnings = {
     #     "dataset_type": "Tipe Dataset",

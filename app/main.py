@@ -3,7 +3,7 @@ import streamlit as st
 from sklearn.linear_model import LinearRegression
 from views import ( 
     view_home, view_tutorial, view_dataset_type, view_parameter, view_train,
-    view_result, view_comparison
+    view_result, view_comparison, view_charts
     )
 from styles import css_style
 from src.data import load_data
@@ -14,7 +14,6 @@ from src.pre import preprocess_data
 css_style()
 
 
-
 view_home()
 view_tutorial()
 view_dataset_type()
@@ -22,6 +21,7 @@ view_parameter()
 view_train()
 view_result()
 view_comparison()
+view_charts()
 
 # View - Bagian Pembuka
 # view_home()
