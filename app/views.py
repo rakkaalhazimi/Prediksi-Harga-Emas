@@ -7,14 +7,14 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 from src.data import load_data
-from src.models import gen_algo, evaluate, combine_predictions
+from src.models import gen_algo, evaluate, combine_predictions, prediction_date_based
 from src.pre import preprocess_data
 from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
 
 
 __all__ = [
     "view_home", "view_tutorial", "view_dataset_type", "view_parameter", "view_train",
-    "view_result", "view_comparison", "view_charts", "view_predict_period"
+    "view_result", "view_comparison", "view_charts", "view_predict_period", "view_predict_date"
 ]
 
 # Inisiasi
@@ -221,7 +221,6 @@ def view_comparison():
 @wrap_view("Visualisasi Error")
 @is_trained
 def view_charts():
-
     chart_functs = [("Batang", error_bar_chart), ("Garis", error_line_chart)]
 
     for shape, func in chart_functs:
@@ -238,17 +237,15 @@ def view_charts():
 def view_predict_period():
     with st.form("Period"):
         period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
-        is_submit = st.form_submit_button("Konfirmasi")
+        is_submit = st.form_submit_button("Prediksi")
     st.markdown("#")
     
     if is_submit:
         session["period"] = period
-
     else:
         return
     
     for mode in MODES:
-
         predict_period = combine_predictions(
             period=session["period"], 
             X_test=session["{}_test".format(mode)]["X_test"], 
@@ -264,6 +261,30 @@ def view_predict_period():
         st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
         st.bokeh_chart(chart)
         st.markdown("#")
+
+
+@wrap_view("Prediksi Tanggal Tertentu")
+@is_trained
+def view_predict_date():
+    min_value=session["beli_train"]["y_train"].index[0]
+    max_value=session["beli_test"]["y_test"].index[-1] + pd.Timedelta(days=30)
+
+    with st.form("Date"):
+        date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
+        is_submit = st.form_submit_button("Prediksi")
+    
+    if is_submit:
+        for mode in MODES:
+            predictions_date = prediction_date_based(
+                date=date, 
+                X=session["{}_train".format(mode)]["X_train"].append(session["{}_test".format(mode)]["X_test"]),
+                y=session["{}_train".format(mode)]["y_train"].append(session["{}_test".format(mode)]["y_test"]),
+                model=st.session_state["linreg_beli"],
+                model_ga=st.session_state["linreg_beli_ga"]
+            )
+
+            st.write("Prediksi harga {} emas pada {:%d %B %Y}".format(mode, date))
+            st.dataframe(predictions_date.style.format(precision=2))
 
 
 

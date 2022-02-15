@@ -21,6 +21,7 @@ view_result()
 view_comparison()
 view_charts()
 view_predict_period()
+view_predict_date()
 
 # View - Bagian Pembuka
 # view_home()
