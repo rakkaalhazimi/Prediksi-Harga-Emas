@@ -7,10 +7,15 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 from src.data import load_data
-from src.models import gen_algo, evaluate
+from src.models import gen_algo, evaluate, combine_predictions
 from src.pre import preprocess_data
 from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
 
+
+__all__ = [
+    "view_home", "view_tutorial", "view_dataset_type", "view_parameter", "view_train",
+    "view_result", "view_comparison", "view_charts", "view_predict_period"
+]
 
 # Inisiasi
 df = load_data()
@@ -227,18 +232,26 @@ def view_charts():
             st.bokeh_chart(chart)
             st.write("")
 
-    # warnings = {
-    #     "dataset_type": "Tipe Dataset",
-    #     "test": "Parameter"
-    # }
-    # prerequisites = ["dataset_type", "test"]
-    # for req in prerequisites:
-    #     if not session.get(req):
-    #         st.warning("{} belum ditentukan.".format(warnings[req]))
-    #         break
 
-    # else:
-    #     st.subheader("Latih Model")
+@wrap_view("Prediksi Jangka Waktu Tertentu")
+@is_trained
+def view_predict_period():
+    period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
+    session["period"] = period
+    
+    for mode in MODES:
+
+        predict_period = combine_predictions(
+            period=session["period"], 
+            X_test=session["{}_test".format(mode)]["X_test"], 
+            rekap=session["rekap_{}".format(mode)],
+            model=session["linreg_{}".format(mode)],
+            model_ga=session["linreg_{}_ga".format(mode)]
+        )
+        
+        st.dataframe(predict_period)
+
+
 
 class ViewElement:
 
