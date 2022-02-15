@@ -9,12 +9,13 @@ from sklearn.linear_model import LinearRegression
 from src.data import load_data
 from src.models import gen_algo, evaluate
 from src.pre import preprocess_data
-from src.visualization import compar_table, error_bar_chart, error_line_chart, predictions_line_chart
+from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
 
 
 # Inisiasi
 df = load_data()
 session = st.session_state
+MODES = ["beli", "jual"]
 
 
 def wrap_view(title):
@@ -160,24 +161,50 @@ def view_result():
     if session.get("linreg_beli"):
         col1, col2 = st.columns([6, 6])
 
-        linreg = [session.get("linreg_beli"), session.get("linreg_jual")]
-        linreg_ga = [session.get("linreg_beli_ga"), session.get("linreg_jual_ga")]
-        modes = ["beli_test", "jual_test"]
-
-        for model, model_ga, mode in zip(linreg, linreg_ga, modes):
+        for mode in MODES:
             with col1:
-                st.write("Metrik regresi linier pada harga {}".format(mode[:4]))
-                results = evaluate(model, mode=mode)
+                st.write("Metrik regresi linier pada harga {}".format(mode))
+                results = evaluate(session["linreg_{}".format(mode)], mode="{}_test".format(mode))
+                
                 for metric in results:
                     st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+                st.write("-")
                 st.markdown("---")
 
             with col2:
-                st.write("Metrik regresi linier + GA pada harga {}".format(mode[:4]))
-                results = evaluate(model_ga, mode=mode)
+                st.write("Metrik regresi linier + GA pada harga {}".format(mode))
+                results = evaluate(session["linreg_{}_ga".format(mode)], mode="{}_test".format(mode))
+                
                 for metric in results:
                     st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+                st.write("Fitness {} : {:.4f}".format(mode, session["fitness_{}".format(mode)]))
                 st.markdown("---")
+    
+    else:
+        st.write("Model belum dilatih.")
+
+
+@wrap_view(title="Perbandingan Prediksi")
+def view_comparison():
+
+    if session.get("linreg_beli"):
+        for mode in MODES:
+            st.markdown("**Prediksi pada harga {}**".format(mode))
+            rekap, rekap_show = compar_table(
+                model=session["linreg_{}".format(mode)], 
+                model_ga=session["linreg_{}_ga".format(mode)], 
+                **session["{}_test".format(mode)]
+            )
+            st.dataframe(rekap_show)
+
+            errors = compar_error(rekap)
+            for label in errors:
+                st.write("{} : {:.3f}".format(label, errors[label]))
+
+            st.markdown("#")
+
+    else:
+        st.write("Model belum dilatih.")
             
 
 

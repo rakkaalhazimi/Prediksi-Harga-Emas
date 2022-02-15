@@ -58,8 +58,22 @@ def compar_table(X_test, y_test, model, model_ga):
         "Error RMSE MLR+Genetic": np.sqrt((y_test_series - predictions_ga_series)**2),
     }, index=index)
 
-    # rekap = rekap.style.format(precision=2)
-    return rekap
+    rekap_show = rekap.style.format(precision=2)
+    return rekap, rekap_show
+
+
+def compar_error(rekap):
+    mean_mse_error = rekap["Error MSE MLR"].mean()
+    mean_rmse_error = np.sqrt(mean_mse_error)
+    mean_ga_mse_error = rekap["Error MSE MLR+Genetic"].mean()
+    mean_ga_rmse_error = np.sqrt(mean_ga_mse_error)
+
+    return {
+        "Rata-rata error MSE tanpa algoritma genetika": mean_mse_error, 
+        "Rata-rata error MSE dengan algoritma genetika": mean_rmse_error, 
+        "Rata-rata error RMSE tanpa algoritma genetika": mean_ga_mse_error, 
+        "Rata-rata error RMSE dengan algoritma genetika": mean_ga_rmse_error
+    }
 
 
 def error_bar_chart(rekap, days=30):
