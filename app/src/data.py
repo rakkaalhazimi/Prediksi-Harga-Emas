@@ -2,5 +2,45 @@ import streamlit as st
 import pandas as pd
 
 @st.cache
-def load_data():
-    return pd.read_csv("app/data/dataset_full.csv")
+def load_data(path):
+    return pd.read_csv(path)
+
+def load_custom_data(uploaded):
+    if uploaded.name.endswith(".csv"):
+        return pd.read_csv(uploaded)
+    else:
+        return pd.read_excel(uploaded)
+
+def verify_data(df):
+    # Check Column Names
+    try:
+        assert "HargaBeli" in df.columns
+        assert "HargaJual" in df.columns
+        assert "Date" in df.columns
+    except AssertionError:
+        st.warning("""
+        Tidak ada kolom HargaBeli, HargaJual atau Date, pastikan nama kolom sesuai dengan yang diberitahukan. 
+        Nama kolom saat ini {}
+        """.format(",".join(df.columns)))
+        return False
+
+    # Check Data Types
+    try:
+        df["HargaBeli"].astype(float)
+        df["HargaJual"].astype(float)
+    except ValueError:
+        st.warning("Tipe data tidak sesuai, pastikan data dalam bentuk angka.")
+        return False
+
+    # Check Date Formats
+    try:
+        pd.to_datetime(df["Date"])
+    except ValueError:
+        st.warning("""
+        Format tanggal dalam kolom 'Date' salah, seharusnya DD/MM/YYYY, namun yang didapat {}
+        """.format(df["Date"].iloc[0])
+        )
+        return False
+
+    st.info("Data berhasil diproses")
+    return True

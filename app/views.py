@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from src.data import load_data
+from src.data import load_data, load_custom_data, verify_data
 from src.models import gen_algo, evaluate, combine_predictions, prediction_date_based
 from src.pre import preprocess_data
 from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 # Inisiasi
-df = load_data()
+df = load_data("app/data/dataset_full.csv")
 session = st.session_state
 MODES = ["beli", "jual"]
 
@@ -81,19 +81,21 @@ def view_dataset_type():
         st.markdown("""
         Pastikan bahwa data memiliki:
         - 2 kolom dengan nama `HargaBeli` dan `HargaJual` yang berisikan bilangan cacah / bulat
-        - 1 kolom dengan nama `Date` yang berisikan tanggal dengan format `YYYY-MM-DD`
+        - 1 kolom dengan nama `Date` yang berisikan tanggal dengan format `DD/MM/YYYY`
         - Jumlah data lebih dari 10
         #
         """)
-        csv_file = st.file_uploader(label="Unggah file `.csv`", type="csv")
+        csv_file = st.file_uploader(label="Unggah file .csv, .xlsx", type=["csv", "xlsx"])
         if csv_file:
-            session["custom_dataset"] = csv_file
-            session["dataset_type"] = "Custom"
+            custom_df = load_custom_data(csv_file)
+            valid = verify_data(custom_df)
+            session["dataset"] = custom_df if valid else df
+            session["dataset_type"] = "Custom" if valid else "Asli"
     
     else:
         st.write("Anda akan menggunakan dataset asli dari server")
+        session["dataset"] = df
         session["dataset_type"] = "Asli"
-        session["custom_dataset"] = None
 
 
 @wrap_view(title="Parameter")
@@ -119,7 +121,7 @@ def view_parameter():
         session["cr"] = cr
         session["mr"] = mr
 
-        beli_train, beli_test, jual_train, jual_test = preprocess_data(df, session["test"])
+        beli_train, beli_test, jual_train, jual_test = preprocess_data(session["dataset"], session["test"])
         
         session["beli_train"] = beli_train
         session["beli_test"] = beli_test
