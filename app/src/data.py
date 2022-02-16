@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 import pandas as pd
 
@@ -6,10 +8,20 @@ def load_data(path):
     return pd.read_csv(path)
 
 def load_custom_data(uploaded):
-    if uploaded.name.endswith(".csv"):
+    fn = uploaded.name.lower()
+    ext = os.path.splitext(fn)[-1]
+
+    if fn.endswith(".csv"):
         return pd.read_csv(uploaded)
-    else:
+    elif fn.lower().endswith(".xlsx"):
         return pd.read_excel(uploaded)
+    else:
+        st.warning("""
+        Ekstensi file tidak sesuai, pastikan file berekstensi .csv atau .xlsx, ekstensi saat ini {}
+        """.format(ext)
+        )
+        return False
+
 
 def verify_data(df):
     # Check Column Names
@@ -41,6 +53,17 @@ def verify_data(df):
         """.format(df["Date"].iloc[0])
         )
         return False
+
+    # Check Data Length
+    length = len(df)
+    if length < 20:
+        st.warning("""
+        Dataset kurang dari 20 sampel, dataset saat ini berjumlah {} sampel.
+        """.format(length)
+        )
+        return False
+        
+
 
     st.info("Data berhasil diproses")
     return True

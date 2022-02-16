@@ -82,7 +82,7 @@ def view_dataset_type():
         Pastikan bahwa data memiliki:
         - 2 kolom dengan nama `HargaBeli` dan `HargaJual` yang berisikan bilangan cacah / bulat
         - 1 kolom dengan nama `Date` yang berisikan tanggal dengan format `DD/MM/YYYY`
-        - Jumlah data lebih dari 10
+        - Jumlah data lebih dari 20
         #
         """)
         csv_file = st.file_uploader(label="Unggah file .csv, .xlsx", type=["csv", "xlsx"])
