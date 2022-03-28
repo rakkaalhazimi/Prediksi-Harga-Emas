@@ -1,6 +1,3 @@
-from abc import abstractmethod
-from typing import Any
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -8,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 
 from src.data import load_data, load_custom_data, verify_data
 from src.models import gen_algo, evaluate, combine_predictions, prediction_date_based
-from src.pre import preprocess_data
+from src.pre import preprocess_data, apply_test_scaler
 from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
 
 
@@ -128,6 +125,19 @@ def view_parameter():
         session["jual_train"] = jual_train
         session["jual_test"] = jual_test
 
+        len_test = len(session["beli_test"]["X_test"])
+        session["beli_real_test"] = {
+            "X_test": session["X_beli"].iloc[-len_test:], 
+            "y_test": session["y_beli"].iloc[-len_test:]
+        }
+        session["jual_real_test"] = {
+            "X_test": session["X_jual"].iloc[-len_test:], 
+            "y_test": session["y_jual"].iloc[-len_test:]
+        }
+
+        session["beli_real_test"] = apply_test_scaler(**session["beli_real_test"], mode="beli")
+        session["jual_real_test"] = apply_test_scaler(**session["jual_real_test"], mode="jual")
+
 
 @wrap_view("Latih Model")
 def view_train():
@@ -170,74 +180,128 @@ def view_train():
 
 
 
+def show_result_matric(mode):
+    col1, col2 = st.columns([6, 6])
+
+    with col1:
+        st.write("Metrik regresi linier pada harga {}".format(mode))
+        results = evaluate(session["linreg_{}".format(mode)], mode="{}".format(mode))
+        
+        for metric in results:
+            st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+        st.write("--")
+        st.markdown("---")
+
+    with col2:
+        st.write("Metrik regresi linier + GA pada harga {}".format(mode))
+        results = evaluate(session["linreg_{}_ga".format(mode)], mode="{}".format(mode))
+        
+        for metric in results:
+            st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
+        st.write("Fitness {} : {:.4f}".format(mode, session["fitness_{}".format(mode)]))
+        st.markdown("---")
 
 
 @wrap_view("Hasil Evaluasi Model")
 @is_trained
 def view_result():
-
-    col1, col2 = st.columns([6, 6])
-
+    show_mode = st.selectbox("Jenis", ["Harga Jual", "Harga Beli", "Semua"], key="result")
+    show_mode = show_mode.lower().split()
+    st.markdown("#")
+    
     for mode in MODES:
-        with col1:
-            st.write("Metrik regresi linier pada harga {}".format(mode))
-            results = evaluate(session["linreg_{}".format(mode)], mode="{}_test".format(mode))
-            
-            for metric in results:
-                st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-            st.write("--")
-            st.markdown("---")
+        if mode in show_mode or "semua" in show_mode:
+            show_result_matric(mode)
+        else:
+            continue
 
-        with col2:
-            st.write("Metrik regresi linier + GA pada harga {}".format(mode))
-            results = evaluate(session["linreg_{}_ga".format(mode)], mode="{}_test".format(mode))
-            
-            for metric in results:
-                st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-            st.write("Fitness {} : {:.4f}".format(mode, session["fitness_{}".format(mode)]))
-            st.markdown("---")
+
+
+def show_pred_comparison(mode):
+    st.markdown("**Prediksi pada harga {}**".format(mode))
+    rekap, rekap_show = compar_table(
+        model=session["linreg_{}".format(mode)], 
+        model_ga=session["linreg_{}_ga".format(mode)],
+        mode=mode,
+        **session["{}_real_test".format(mode)]
+    )
+    session["rekap_{}".format(mode)] = rekap
+    st.dataframe(rekap_show)
+
+    errors = compar_error(rekap)
+    for label in errors:
+        st.write("{} : {:.3f}".format(label, errors[label]))
+
+    st.markdown("#")
 
 
 @wrap_view(title="Perbandingan Prediksi")
 @is_trained
 def view_comparison():
-
+    show_mode = st.selectbox("Jenis", [ "Semua", "Harga Jual", "Harga Beli"], key="comparison")
+    st.markdown("#")
+    show_mode = show_mode.lower().split()
+        
     for mode in MODES:
-        st.markdown("**Prediksi pada harga {}**".format(mode))
-        rekap, rekap_show = compar_table(
-            model=session["linreg_{}".format(mode)], 
-            model_ga=session["linreg_{}_ga".format(mode)], 
-            **session["{}_test".format(mode)]
-        )
-        session["rekap_{}".format(mode)] = rekap
-        st.dataframe(rekap_show)
+        if mode in show_mode or "semua" in show_mode:
+            show_pred_comparison(mode)
+        else:
+            continue
+        
 
-        errors = compar_error(rekap)
-        for label in errors:
-            st.write("{} : {:.3f}".format(label, errors[label]))
+def show_chart(mode):
+    chart_functs = [("Batang", error_bar_chart), ("Garis", error_line_chart)]
+    for shape, func in chart_functs:
+        st.markdown("**Diagram {} MSE pada harga {}**".format(shape, mode))
+        rekap = session["rekap_{}".format(mode)]
+        chart = func(rekap=rekap)
+        st.bokeh_chart(chart)
+    st.markdown("#")
 
-        st.markdown("#")
-
-            
 
 @wrap_view("Visualisasi Error")
 @is_trained
 def view_charts():
-    chart_functs = [("Batang", error_bar_chart), ("Garis", error_line_chart)]
+    show_mode = st.selectbox("Jenis", [ "Semua", "Harga Jual", "Harga Beli"], key="charts")
+    st.markdown("#")
+    show_mode = show_mode.lower().split()
+    
+    for mode in MODES:
+        if mode in show_mode or "semua" in show_mode:
+            show_chart(mode)
+        else:
+            continue
+            
 
-    for shape, func in chart_functs:
-        for mode in MODES:
-            st.markdown("**Diagram {} MSE pada harga {}**".format(shape, mode))
-            rekap = session["rekap_{}".format(mode)]
-            chart = func(rekap=rekap)
-            st.bokeh_chart(chart)
-            st.write("")
+
+def show_predict_period(mode, period):
+    predict_period = combine_predictions(
+        period=session["period"], 
+        X_test=session["predictor_{}".format(mode)], 
+        rekap=session["rekap_{}".format(mode)],
+        model=session["linreg_{}".format(mode)],
+        model_ga=session["linreg_{}_ga".format(mode)],
+        mode=mode
+    )
+    value_chart = predictions_line_chart(predict_period)
+    error_chart = error_bar_chart(predict_period, days=session["period"] * 2)
+
+    st.markdown("**Tabel prediksi harga {} pada jangka waktu {} hari**".format(mode, period))
+    st.dataframe(predict_period.style.format(precision=2))
+    st.markdown("##")
+    st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
+    st.bokeh_chart(value_chart)
+    st.markdown("**Diagram error {} pada jangka waktu {} hari**".format(mode, period))
+    st.bokeh_chart(error_chart)
+    st.markdown("#")
 
 
 @wrap_view("Prediksi Jangka Waktu Tertentu")
 @is_trained
 def view_predict_period():
     with st.form("Period"):
+        show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
+        show_mode = show_mode.lower().split()
         period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
         is_submit = st.form_submit_button("Prediksi")
     st.markdown("#")
@@ -248,42 +312,43 @@ def view_predict_period():
         return
     
     for mode in MODES:
-        predict_period = combine_predictions(
-            period=session["period"], 
-            X_test=session["{}_test".format(mode)]["X_test"], 
-            rekap=session["rekap_{}".format(mode)],
-            model=session["linreg_{}".format(mode)],
-            model_ga=session["linreg_{}_ga".format(mode)]
-        )
-        chart = predictions_line_chart(predict_period)
+        if mode in show_mode or "semua" in show_mode:
+            show_predict_period(mode, period)
+        else:
+            continue
 
-        st.markdown("**Tabel prediksi harga {} pada jangka waktu {} hari**".format(mode, period))
-        st.dataframe(predict_period.style.format(precision=2))
-        st.markdown("##")
-        st.markdown("**Diagram garis harga {} pada jangka waktu {} hari**".format(mode, period))
-        st.bokeh_chart(chart)
-        st.markdown("#")
+        
+
+def show_predict_date(mode, date):
+    shift = session["shift"]
+    predictions_date = prediction_date_based(
+        date=date, 
+        X=session["predictor_{}".format(mode)].iloc[:-shift],
+        model=st.session_state["linreg_beli"],
+        model_ga=st.session_state["linreg_beli_ga"],
+        mode=mode
+    )
+
+    st.write("Prediksi harga {} emas pada {:%d %B %Y}".format(mode, date))
+    st.dataframe(predictions_date.style.format(precision=2))
 
 
 @wrap_view("Prediksi Tanggal Tertentu")
 @is_trained
 def view_predict_date():
-    min_value=session["beli_train"]["y_train"].index[0]
-    max_value=session["beli_test"]["y_test"].index[-1] + pd.Timedelta(days=30)
+    shift = session["shift"]
+    min_value=session["predictor_beli"].index[shift]
+    max_value=session["predictor_beli"].index[-1] + pd.Timedelta(days=shift)
 
     with st.form("Date"):
+        show_mode = st.selectbox("Jenis", ["Semua", "Harga Jual", "Harga Beli"], key="result")
         date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
         is_submit = st.form_submit_button("Prediksi")
+        show_mode = show_mode.lower().split()
     
     if is_submit:
         for mode in MODES:
-            predictions_date = prediction_date_based(
-                date=date, 
-                X=session["{}_train".format(mode)]["X_train"].append(session["{}_test".format(mode)]["X_test"]),
-                y=session["{}_train".format(mode)]["y_train"].append(session["{}_test".format(mode)]["y_test"]),
-                model=st.session_state["linreg_beli"],
-                model_ga=st.session_state["linreg_beli_ga"]
-            )
-
-            st.write("Prediksi harga {} emas pada {:%d %B %Y}".format(mode, date))
-            st.dataframe(predictions_date.style.format(precision=2))
+            if mode in show_mode or "semua" in show_mode:
+                show_predict_date(mode, date)
+            else:
+                continue
