@@ -5,7 +5,7 @@ from bokeh.plotting import figure
 from bokeh.models import Legend
 from bokeh.palettes import Category10_3, Category10_4
 from bokeh.transform import dodge
-from src.models import prediction_columns
+from models import prediction_columns
 
 
 BG_COLOR = "#0E1117"

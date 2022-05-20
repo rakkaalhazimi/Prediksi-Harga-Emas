@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from src.data import load_data, load_custom_data, verify_data
-from src.models import gen_algo, evaluate, combine_predictions, prediction_date_based
-from src.pre import preprocess_data, apply_test_scaler
-from src.visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
+from data import load_data, load_custom_data, verify_data
+from models import gen_algo, evaluate, combine_predictions, prediction_date_based
+from pre import preprocess_data, apply_test_scaler
+from visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
 
 
 __all__ = [
