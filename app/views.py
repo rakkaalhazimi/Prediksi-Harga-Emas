@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 # Inisiasi
-df = load_data("app/data/dataset_full.csv")
+df = load_data("app/data/new_data.csv")
 session = st.session_state
 MODES = ["beli", "jual"]
 
@@ -323,7 +323,7 @@ def show_predict_date(mode, date):
     shift = session["shift"]
     predictions_date = prediction_date_based(
         date=date, 
-        X=session["predictor_{}".format(mode)].iloc[:-shift],
+        X=session["predictor_{}".format(mode)],
         model=st.session_state["linreg_beli"],
         model_ga=st.session_state["linreg_beli_ga"],
         mode=mode

@@ -209,14 +209,16 @@ def combine_predictions(period, X_test, rekap, model, model_ga, mode):
 def prediction_date_based(date, X, model, model_ga, mode):
     
     shift = session["shift"]
-    date_shift = pd.Timedelta(days=shift)
 
     # Copy Dataframe
     pd_date = pd.to_datetime(date, format="%Y-%m-%d")
+    start = pd_date - pd.Timedelta(days=shift)
+    end = start
+
     X = X.copy()
-    X = X.loc[pd_date - date_shift: pd_date - date_shift]
+    X = X.loc[start: end]
     
-    scaler = session["scaler_{}_y".format(mode)]
+    scaler = session["scaler_{}_y".format(mode)]; 
     predictions = model.predict(X)
     predictions_ga = model_ga.predict(X)
 

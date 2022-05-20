@@ -44,7 +44,7 @@ def get_variables(df, mode, period=1):
     predictor = predictor.loc[respon.index]
 
     # Sesuaikan tanggal pada variabel respon
-    respon.index += pd.Timedelta(days=60)
+    respon.index += pd.Timedelta(days=period)
 
     return predictor, respon
 
