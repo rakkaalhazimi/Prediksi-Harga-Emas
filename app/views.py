@@ -21,9 +21,9 @@ MODES = ["beli", "jual"]
 
 def wrap_view(title):
     def decorate(func):
-        def content_view():
+        def content_view(*args, **kwargs):
             with st.expander(title):
-                func()
+                func(*args, **kwargs)
         return content_view
     return decorate
 
