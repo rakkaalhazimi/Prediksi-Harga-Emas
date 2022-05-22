@@ -35,7 +35,7 @@ def get_variables(df, mode, period=1):
 
     # Simpan predictor asli
     st.session_state["predictor_{}".format(mode.lower())] = predictor
-    predictor_real = predictor.copy()
+    predictor_unshifted = predictor.copy()
 
     # Sejajarkan variabel respon dan prediktor supaya memiliki jumlah observasi yang sama
     predictor = predictor.loc[respon.index]
@@ -43,7 +43,7 @@ def get_variables(df, mode, period=1):
     # Sesuaikan tanggal pada variabel respon
     respon.index += pd.Timedelta(days=period)
 
-    return predictor, predictor_real, respon
+    return predictor, predictor_unshifted, respon
 
 
 def prepare_data(df, mode):
