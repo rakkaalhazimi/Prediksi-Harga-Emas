@@ -10,6 +10,12 @@ prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
 error_columns = ["Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR", "Error RMSE MLR+Genetic"]
 
 
+def get_linreg_model(X, y):
+    linreg = LinearRegression()
+    linreg = linreg.fit(X, y)
+    return linreg
+
+
 def create_population(size, n_feat):
     population = np.random.uniform(low=-1., high=1., size=(size, n_feat + 1))
     return population
