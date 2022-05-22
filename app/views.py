@@ -68,6 +68,33 @@ def view_tutorial():
     """)
 
 
+# DATA TYPE VIEWS
+# =====================
+
+def assign_data(data, lable):
+    st.session_state["dataset"] = data
+    st.session_state["dataset_type"] = lable
+
+## Ori Data
+## ========
+def get_ori_data():
+    ori_df = load_data("app/data/new_data.csv")
+    return ori_df
+
+## Custom Data
+## ===========
+def custom_data_uploader():
+    user_file = st.file_uploader(label="Unggah file .csv, .xlsx", type=["csv", "xlsx"])
+    return user_file
+
+def get_custom_data():
+    user_file = custom_data_uploader()
+    if user_file:
+        custom_df = load_custom_data(user_file)
+        valid = verify_data(custom_df)
+
+## Main View
+## =========
 @wrap_view(title="Tipe Dataset")
 def view_dataset_type():
     st.write("Pilih salah satu dari tipe dibawah")
@@ -83,19 +110,16 @@ def view_dataset_type():
     - Jumlah data lebih dari 20
     #
     """
+
+    df = load_data("app/data/new_data.csv")
+
     if option == ori:
-        st.write(message_ori)
-        st.session_state["dataset"] = df
-        st.session_state["dataset_type"] = "Asli"
-    
+        st.markdown(message_ori)
+        ori_df = get_ori_data()
+
     else:
         st.markdown(message_custom)
-        csv_file = st.file_uploader(label="Unggah file .csv, .xlsx", type=["csv", "xlsx"])
-        if csv_file:
-            custom_df = load_custom_data(csv_file)
-            valid = verify_data(custom_df)
-            st.session_state["dataset"] = custom_df if valid else df
-            st.session_state["dataset_type"] = "Custom" if valid else "Asli"
+        custom_df = get_custom_data()
         
 
 
