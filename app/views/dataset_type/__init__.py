@@ -3,8 +3,8 @@ import streamlit as st
 from config import Config as c
 from utils.sessions import set_session
 from utils.wrappers import wrap_view
-from views.dataset_type.data_loader import load_data, load_custom_data
-from views.dataset_type.data_validator import verify_data
+from views.dataset_type.load import load_data, load_custom_data
+from views.dataset_type.validation import verify_data
 
 
 def get_ori_data(path):
