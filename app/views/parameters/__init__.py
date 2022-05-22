@@ -3,7 +3,7 @@ import streamlit as st
 from config import Config as c
 from utils.sessions import set_session
 from utils.wrappers import wrap_view
-from views.parameters.data_preparator import prepare_data
+from views.parameters.prepare import prepare_data
 
 
 @wrap_view(title="Parameter")
