@@ -14,7 +14,6 @@ def view_data_parameter():
     df = st.session_state["dataset"]
 
     with st.form("Parameter data"):
-        st.write("Parameter data")
         mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
         test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
         is_submit = st.form_submit_button("Simpan")
@@ -48,7 +47,6 @@ def view_data_parameter():
 def view_gen_parameter():
 
     with st.form("Parameter gen"):
-        st.write("Parameter Algoritma Genetika")
         n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
         size = st.number_input(label="Ukuran Populasi", min_value=100, step=100)
         cr = st.number_input(label="Crossover Rate", min_value=0.0, max_value=1.0, step=0.1)
