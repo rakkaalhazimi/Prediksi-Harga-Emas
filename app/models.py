@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error
 
+from config import Config as c
+
 
 session = st.session_state
 prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
@@ -19,7 +21,7 @@ def get_linreg_model(X, y):
 
 
 def create_population(size, n_feat):
-    population = np.random.uniform(low=-1., high=1., size=(size, n_feat + 1))
+    population = np.random.uniform(low=c.GENE_MIN, high=c.GENE_MAX, size=(size, n_feat + 1))
     return population
 
 
@@ -63,7 +65,7 @@ def mutation(chrom, mutation_rate=0.9):
     mutation_size = int(mutation_rate * length)
     
     random_gene = np.random.randint(0, length, size=mutation_size)
-    mutated_gene = np.random.uniform(-1., 1., size=mutation_size)
+    mutated_gene = np.random.uniform(c.GENE_MIN, c.GENE_MAX, size=mutation_size)
     chrom[random_gene] = mutated_gene
 
     return chrom

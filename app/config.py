@@ -8,3 +8,6 @@ class Config:
     RESPONSE_VAR = "Harga"
     BUY_MODE = "beli"
     SELL_MODE = "jual"
+
+    GENE_MIN = -1.5
+    GENE_MAX = 1.5
