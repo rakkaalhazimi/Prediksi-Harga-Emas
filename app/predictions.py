@@ -27,7 +27,7 @@ def combine_predictions(rekap, prediksi_lanjut, prediksi_lanjut_ga):
 
 def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
     # Copy rekap
-    rekap = rekap.copy()
+    rekap = rekap[prediction_columns].copy()
 
     # Berapa banyak data yang digeser
     shift = c.SHIFT

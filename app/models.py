@@ -10,7 +10,7 @@ from config import Config as c
 
 
 session = st.session_state
-prediction_columns = ["Y_test", "MLR Without Genetic", "MLR With Genetic"]
+prediction_columns = ["MLR Without Genetic", "MLR With Genetic"]
 error_columns = ["Error MSE MLR", "Error MSE MLR+Genetic", "Error RMSE MLR", "Error RMSE MLR+Genetic"]
 
 

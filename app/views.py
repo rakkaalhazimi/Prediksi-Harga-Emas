@@ -291,10 +291,6 @@ def main():
             # Dapatkan rekap
             rekap = get_session("rekap")
 
-            # Gunakan kolom tertentu pada rekap
-            prediction_columns = ["MLR Without Genetic", "MLR With Genetic"]
-            rekap = rekap[prediction_columns]
-
             with st.form("Period"):
                 period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
                 is_submit = st.form_submit_button("Prediksi")
@@ -312,8 +308,9 @@ def main():
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
                     st.write(predict_period)
 
-                    # value_chart = predictions_line_chart(predict_period)
+                    value_chart = predictions_line_chart(predict_period)
                     # error_chart = error_bar_chart(predict_period, days=period)
+                    st.bokeh_chart(value_chart)
 
 
     with st.expander("Prediksi Tanggal Tertentu"):
