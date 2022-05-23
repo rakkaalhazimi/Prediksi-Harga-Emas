@@ -7,7 +7,8 @@ from config import Config as c
 from data import load_csv_data, load_custom_data, verify_data
 from models import get_linreg_model, gen_algo, evaluate, combine_predictions, prediction_date_based
 from pre import preprocess_data, prepare_data
-from visualization import compar_table, compar_error, error_bar_chart, error_line_chart, predictions_line_chart
+from tables import compar_error, compar_table
+from plots import error_bar_chart, error_line_chart, predictions_line_chart
 from utils.sessions import get_session, set_session
 
 
@@ -193,7 +194,7 @@ def main():
             r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga)
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga]
 
-            st.write(f"Metrik regresi pada harga {mode[0]}")
+            st.write(f"Metrik regresi pada harga {mode}")
 
             # Tampilkan tabel metrik
             metric_table = pd.DataFrame(
@@ -210,42 +211,12 @@ def main():
             )
                 
 
+    with st.expander("Hasil Evaluasi Model"):
+        if "linreg" in st.session_state:
+            # Dapatkan mode
+            mode = get_session("mode")
 
-# def show_result_matric(mode):
-#     col1, col2 = st.columns([6, 6])
-
-#     with col1:
-#         st.write("Metrik regresi linier pada harga {}".format(mode))
-#         results = evaluate(st.session_state["linreg_{}".format(mode)], mode="{}".format(mode))
-        
-#         for metric in results:
-#             st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-#         st.write("--")
-#         st.markdown("---")
-
-#     with col2:
-#         st.write("Metrik regresi linier + GA pada harga {}".format(mode))
-#         results = evaluate(st.session_state["linreg_{}_ga".format(mode)], mode="{}".format(mode))
-        
-#         for metric in results:
-#             st.write("{} : {:.3f}".format(metric.upper(), results[metric]))
-#         st.write("Fitness {} : {:.4f}".format(mode, st.session_state["fitness_{}".format(mode)]))
-#         st.markdown("---")
-
-
-# @wrap_view("Hasil Evaluasi Model")
-# @is_trained
-# def view_result():
-#     show_mode = st.selectbox("Jenis", ["Harga Jual", "Harga Beli", "Semua"], key="result")
-#     show_mode = show_mode.lower().split()
-#     st.markdown("#")
-    
-#     for mode in MODES:
-#         if mode in show_mode or "semua" in show_mode:
-#             show_result_matric(mode)
-#         else:
-#             continue
-
+            st.write(f"Prediksi pada harga {mode}")
 
 
 # def show_pred_comparison(mode):

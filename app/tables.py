@@ -3,15 +3,15 @@ import numpy as np
 import pandas as pd
 
 
-def compar_table(X_test, y_test, model, model_ga, mode):
+def compar_table(X_test, y_test, model, model_ga, scaler_y, mode):
     y_test_series = y_test.values
     predictions_series = model.predict(X_test)
     predictions_ga_series = model_ga.predict(X_test)
 
-    scaler = st.session_state["scaler_{}_y".format(mode)]
-    y_test_series = np.squeeze(scaler.inverse_transform(y_test_series))
-    predictions_series = np.squeeze(scaler.inverse_transform(predictions_series))
-    predictions_ga_series = np.squeeze(scaler.inverse_transform(predictions_ga_series))
+    scaler_y = st.session_state["scaler_{}_y".format(mode)]
+    y_test_series = np.squeeze(scaler_y.inverse_transform(y_test_series))
+    predictions_series = np.squeeze(scaler_y.inverse_transform(predictions_series))
+    predictions_ga_series = np.squeeze(scaler_y.inverse_transform(predictions_ga_series))
 
     index = [date.strftime("%Y-%m-%d") for date in y_test.index]
 
