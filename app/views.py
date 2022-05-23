@@ -153,7 +153,7 @@ def main():
             linreg = get_linreg_model(X=X_train, y=y_train)
 
             # Latih regresi linier + GA
-            population, fitness, linreg_ga = gen_algo(size=size, n_gen=n_gen, cr=cr, mr=mr, X_train=X_train, y_train=y_train)
+            population, fitness, linreg_ga = gen_algo(size=size, n_gen=n_gen, cr=cr, mr=mr, X_train=X_train, y_train=y_train, mode=mode)
 
             # Nilai fitness terbaik
             best_fitness = fitness[0]
@@ -216,6 +216,7 @@ def main():
             )
                 
 
+    # Tampilan Hasil Perbandingan Prediksi
     with st.expander("Hasil Perbandingan Prediksi"):
         if "linreg" in st.session_state:
             # Dapatkan mode
@@ -287,6 +288,13 @@ def main():
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
+            # Dapatkan rekap
+            rekap = get_session("rekap")
+
+            # Gunakan kolom tertentu pada rekap
+            prediction_columns = ["MLR Without Genetic", "MLR With Genetic"]
+            rekap = rekap[prediction_columns]
+
             with st.form("Period"):
                 period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
                 is_submit = st.form_submit_button("Prediksi")
@@ -303,6 +311,47 @@ def main():
                     )
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
                     st.write(predict_period)
+
+                    # value_chart = predictions_line_chart(predict_period)
+                    # error_chart = error_bar_chart(predict_period, days=period)
+
+
+    with st.expander("Prediksi Tanggal Tertentu"):
+        if "linreg" in st.session_state:
+            # Dapatkan mode
+            mode = get_session("mode")
+
+            # Dapatkan prediktor asli
+            X_unshifted = get_session("X_unshifted")
+
+            # Dapatkan scaler
+            scaler_y = get_session("scaler_y")
+
+            # Dapatkan model regresi
+            linreg, linreg_ga = get_session("linreg", "linreg_ga")
+
+            # Tentukan tanggal minimal dan maksimal
+            shift = c.SHIFT
+            min_value=X_unshifted.index[shift]
+            max_value=X_unshifted.index[-1] + pd.Timedelta(days=shift)
+
+            with st.form("Date"):
+                date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
+                is_submit = st.form_submit_button("Prediksi")
+
+            st.markdown("#")
+            
+            if is_submit:
+                predictions_date = prediction_date_based(
+                    date=date, 
+                    X=X_unshifted,
+                    model=linreg,
+                    model_ga=linreg_ga,
+                    scaler_y=scaler_y,
+                )
+                st.write(f"Prediksi harga {mode} emas pada {date:%d %B %Y}")
+                st.dataframe(predictions_date.style.format(precision=2))
+
 
 
 # def show_predict_period(mode, period):

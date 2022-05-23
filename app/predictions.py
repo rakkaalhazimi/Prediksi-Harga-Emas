@@ -27,7 +27,7 @@ def combine_predictions(rekap, prediksi_lanjut, prediksi_lanjut_ga):
 
 def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
     # Copy rekap
-    rekap = rekap.copy()[prediction_columns]
+    rekap = rekap.copy()
 
     # Berapa banyak data yang digeser
     shift = c.SHIFT
@@ -60,7 +60,6 @@ def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
 
 
 def prediction_date_based(date, X, model, model_ga, scaler_y):
-    
     # Berapa banyak data yang digeser
     shift = c.SHIFT
 
@@ -78,10 +77,14 @@ def prediction_date_based(date, X, model, model_ga, scaler_y):
     predictions = scaler_y.inverse_transform(predictions)
     predictions_ga = scaler_y.inverse_transform(predictions_ga)
 
-    
-    df = pd.DataFrame({
-        "MLR Without GA": np.squeeze(predictions),
+    predictions_data = {
+        "MLR Without GA": np.squeeze(predictions), 
         "MLR With Genetic": np.squeeze(predictions_ga)
-    }, index=[pd_date])
+    }
+
+    df = pd.DataFrame(
+        data=predictions_data, 
+        index=[pd_date]
+    )
     
     return df
