@@ -127,20 +127,20 @@ def gen_algo(size, n_gen, X_train, y_train, cr=0.9, mr=0.5, mode=None):
     return population, fitness, linreg
 
 
-def evaluate(model, mode, denormalize=True):
-    predictions = model.predict(session["{}_test".format(mode)]["X_test"])
-    true = session["{}_test".format(mode)]["y_test"]
+def evaluate(X, y, model, scaler_y=None):
+    
+    predictions = model.predict(X)
+    true = y
 
-    if denormalize:
-        scaler = session["scaler_{}_y".format(mode)]
-        predictions = scaler.inverse_transform(predictions)
-        true = scaler.inverse_transform(true)
+    if scaler_y is not None:
+        predictions = scaler_y.inverse_transform(predictions)
+        true = scaler_y.inverse_transform(true)
     
     r2 = r2_score(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return {"r2": r2, "mse": mse, "rmse": rmse}
+    return r2, mse, rmse
 
 
 

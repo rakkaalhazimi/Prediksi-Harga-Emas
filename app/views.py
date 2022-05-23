@@ -172,7 +172,44 @@ def main():
         else:
             st.warning("Data belum disiapkan")
 
+
+    # Tampilan Hasil Evaluasi Model
+    with st.expander("Hasil Evaluasi Model"):
+        if "linreg" in st.session_state:
+            # Dapatkan mode
+            mode = get_session("mode")
             
+            # Dapatkan data test
+            X_test, y_test = get_session("X_test", "y_test")
+
+            # Dapatkan model regresi
+            linreg, linreg_ga = get_session("linreg", "linreg_ga")
+
+            # Evaluasi model regresi linier
+            r2, mse, rmse = evaluate(X_test, y_test, linreg)
+            linreg_metrics = [r2, mse, rmse]
+
+            # Evaluasi model regresi linier + GA
+            r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga)
+            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga]
+
+            st.write(f"Metrik regresi pada harga {mode[0]}")
+
+            # Tampilkan tabel metrik
+            metric_table = pd.DataFrame(
+                data=[linreg_metrics, linreg_ga_metrics],
+                index=["Regresi Linier", "Regresi Linier + GA"],
+                columns=["R2", "MSE", "RMSE"]
+            )
+            st.table(metric_table)
+
+            # Simpan metrik ke dalam session
+            set_session(
+                r2=r2, mse=mse, rmse=rmse,
+                r2_ga=r2_ga, mse_ga=mse_ga, rmse_ga=rmse_ga
+            )
+                
+
 
 # def show_result_matric(mode):
 #     col1, col2 = st.columns([6, 6])
