@@ -186,12 +186,15 @@ def main():
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
+            # Dapatkan scaler
+            scaler_y = get_session("scaler_y")
+
             # Evaluasi model regresi linier
-            r2, mse, rmse = evaluate(X_test, y_test, linreg)
+            r2, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
             linreg_metrics = [r2, mse, rmse]
 
             # Evaluasi model regresi linier + GA
-            r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga)
+            r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga]
 
             st.write(f"Metrik regresi pada harga {mode}")
@@ -202,6 +205,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["R2", "MSE", "RMSE"]
             )
+            metric_table = metric_table.style.format(precision=2)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
@@ -227,6 +231,7 @@ def main():
 
             st.write(f"Prediksi pada harga {mode}")
 
+            # Dapatkan tabel rekapitulasi
             rekap, rekap_show = compar_table(
                 X_test=X_test,
                 y_test=y_test,
@@ -235,40 +240,29 @@ def main():
                 scaler_y=scaler_y,
                 mode=mode,
             )
-
             st.write(rekap_show)
 
-
-# def show_pred_comparison(mode):
-#     st.markdown("**Prediksi pada harga {}**".format(mode))
-#     rekap, rekap_show = compar_table(
-#         model=st.session_state["linreg_{}".format(mode)], 
-#         model_ga=st.session_state["linreg_{}_ga".format(mode)],
-#         mode=mode,
-#         **st.session_state["{}_real_test".format(mode)]
-#     )
-#     st.session_state["rekap_{}".format(mode)] = rekap
-#     st.dataframe(rekap_show)
-
-#     errors = compar_error(rekap)
-#     for label in errors:
-#         st.write("{} : {:.3f}".format(label, errors[label]))
-
-#     st.markdown("#")
+            # Dapatkan rata-rata error
+            error_data = compar_error(rekap)
+            for error_lable, value in error_data.items():
+                st.write(f"{error_lable}: {value:.2f}")
 
 
-# @wrap_view(title="Perbandingan Prediksi")
-# @is_trained
-# def view_comparison():
-#     show_mode = st.selectbox("Jenis", [ "Semua", "Harga Jual", "Harga Beli"], key="comparison")
-#     st.markdown("#")
-#     show_mode = show_mode.lower().split()
+
+    with st.expander("Visualisasi Error"):
+
+        # Tampilkan diagram batang error
+        st.write(f"Diagram batang MSE pada harga {mode}")
+        bar_chart = error_bar_chart(rekap)
+        st.bokeh_chart(bar_chart)
         
-#     for mode in MODES:
-#         if mode in show_mode or "semua" in show_mode:
-#             show_pred_comparison(mode)
-#         else:
-#             continue
+        st.markdown("#")
+
+        # Tampilkan diagram garis error
+        st.write(f"Diagram garis MSE pada harga {mode}")
+        bar_chart = error_line_chart(rekap)
+        st.bokeh_chart(bar_chart)
+
         
 
 # def show_chart(mode):
