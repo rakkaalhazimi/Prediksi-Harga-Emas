@@ -252,7 +252,7 @@ def main():
             set_session(rekap=rekap)
 
 
-
+    # Tampilan Visualisasi Error
     with st.expander("Visualisasi Error"):
         if "linreg" in st.session_state:
             # Dapatkan mode
@@ -274,6 +274,7 @@ def main():
             st.bokeh_chart(bar_chart)
             
 
+    # Tampilan Prediksi Jangka Waktu Tertentu
     with st.expander("Prediksi Jangka Waktu Tertentu"):
         if "linreg" in st.session_state:
             # Dapatkan mode
@@ -313,6 +314,7 @@ def main():
                     st.bokeh_chart(value_chart)
 
 
+    # Tampilan Prediksi Tanggal Tertentu
     with st.expander("Prediksi Tanggal Tertentu"):
         if "linreg" in st.session_state:
             # Dapatkan mode
