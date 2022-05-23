@@ -308,10 +308,28 @@ def main():
                     )
                     st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
                     st.write(predict_period)
+                    st.markdown("#")
+
+                    # error_chart = error_bar_chart(predict_period, days=period)
 
                     value_chart = predictions_line_chart(predict_period)
-                    # error_chart = error_bar_chart(predict_period, days=period)
+                    st.write(f"Diagram garis harga {mode} pada jangka waktu {period} hari")
                     st.bokeh_chart(value_chart)
+                    st.markdown("#")
+
+                    if mode == c.BUY_MODE:
+                        optimal_date = predict_period["MLR Without Genetic"].idxmin()
+                        optimal_date_ga = predict_period["MLR With Genetic"].idxmin()
+                    
+                    elif mode == c.SELL_MODE:
+                        optimal_date = predict_period["MLR Without Genetic"].idxmax()
+                        optimal_date_ga = predict_period["MLR With Genetic"].idxmax()
+
+                    st.markdown(f"- Jika menggunakan regresi biasa, disarankan untuk {mode} emas pada tanggal {optimal_date}")
+                    st.markdown(f"- Jika menggunakan regresi + GA, disarankan untuk {mode} emas pada tanggal {optimal_date_ga}")
+
+
+
 
 
     # Tampilan Prediksi Tanggal Tertentu
