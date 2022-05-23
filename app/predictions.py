@@ -59,9 +59,10 @@ def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
 
 
 
-def prediction_date_based(date, X, model, model_ga, mode):
+def prediction_date_based(date, X, model, model_ga, scaler_y):
     
-    shift = session["shift"]
+    # Berapa banyak data yang digeser
+    shift = c.SHIFT
 
     # Copy Dataframe
     pd_date = pd.to_datetime(date, format="%Y-%m-%d")
@@ -71,12 +72,11 @@ def prediction_date_based(date, X, model, model_ga, mode):
     X = X.copy()
     X = X.loc[start: end]
     
-    scaler = session["scaler_{}_y".format(mode)]; 
     predictions = model.predict(X)
     predictions_ga = model_ga.predict(X)
 
-    predictions = scaler.inverse_transform(predictions)
-    predictions_ga = scaler.inverse_transform(predictions_ga)
+    predictions = scaler_y.inverse_transform(predictions)
+    predictions_ga = scaler_y.inverse_transform(predictions_ga)
 
     
     df = pd.DataFrame({
