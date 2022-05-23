@@ -100,10 +100,10 @@ def preprocess_data(X, X_unshifted, y, test_size):
     scaler_y = init_scaler(y_train, MinMaxScaler)
 
     # Terapkan Scaler
-    X_train = scaler_X.transform(X_train)
-    X_test = scaler_X.transform(X_test)
-    X_unshifted = scaler_X.transform(X_unshifted)
-    y_train = scaler_y.transform(y_train)
-    y_test = scaler_y.transform(y_test)
+    X_train.loc[:] = scaler_X.transform(X_train)
+    X_test.loc[:] = scaler_X.transform(X_test)
+    X_unshifted.loc[:] = scaler_X.transform(X_unshifted)
+    y_train.loc[:] = scaler_y.transform(y_train)
+    y_test.loc[:] = scaler_y.transform(y_test)
 
     return X_train, X_test, X_unshifted, y_train, y_test, scaler_X, scaler_y

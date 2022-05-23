@@ -211,12 +211,32 @@ def main():
             )
                 
 
-    with st.expander("Hasil Evaluasi Model"):
+    with st.expander("Hasil Perbandingan Prediksi"):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
 
+            # Dapatkan data test
+            X_test, y_test = get_session("X_test", "y_test")
+
+            # Dapatkan scaler
+            scaler_y = get_session("scaler_y")
+
+            # Dapatkan model regresi
+            linreg, linreg_ga = get_session("linreg", "linreg_ga")
+
             st.write(f"Prediksi pada harga {mode}")
+
+            rekap, rekap_show = compar_table(
+                X_test=X_test,
+                y_test=y_test,
+                model=linreg, 
+                model_ga=linreg_ga,
+                scaler_y=scaler_y,
+                mode=mode,
+            )
+
+            st.write(rekap_show)
 
 
 # def show_pred_comparison(mode):

@@ -8,7 +8,6 @@ def compar_table(X_test, y_test, model, model_ga, scaler_y, mode):
     predictions_series = model.predict(X_test)
     predictions_ga_series = model_ga.predict(X_test)
 
-    scaler_y = st.session_state["scaler_{}_y".format(mode)]
     y_test_series = np.squeeze(scaler_y.inverse_transform(y_test_series))
     predictions_series = np.squeeze(scaler_y.inverse_transform(predictions_series))
     predictions_ga_series = np.squeeze(scaler_y.inverse_transform(predictions_ga_series))
