@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 
 
-def compar_table(X_test, y_test, model, model_ga, scaler_y, mode):
+def rekap_table(X_test, y_test, model, model_ga, scaler_y):
     y_test_series = y_test.values
     predictions_series = model.predict(X_test)
     predictions_ga_series = model_ga.predict(X_test)

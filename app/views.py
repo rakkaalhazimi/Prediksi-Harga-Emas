@@ -5,9 +5,10 @@ from sklearn.linear_model import LinearRegression
 
 from config import Config as c
 from data import load_csv_data, load_custom_data, verify_data
-from models import get_linreg_model, gen_algo, evaluate, combine_predictions, prediction_date_based
+from models import get_linreg_model, gen_algo, evaluate
 from pre import preprocess_data, prepare_data
-from tables import compar_error, compar_table
+from predictions import predict_ranged_days, prediction_date_based
+from tables import compar_error, rekap_table
 from plots import error_bar_chart, error_line_chart, predictions_line_chart
 from utils.sessions import get_session, set_session
 
@@ -232,13 +233,12 @@ def main():
             st.write(f"Prediksi pada harga {mode}")
 
             # Dapatkan tabel rekapitulasi
-            rekap, rekap_show = compar_table(
+            rekap, rekap_show = rekap_table(
                 X_test=X_test,
                 y_test=y_test,
                 model=linreg, 
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
-                mode=mode,
             )
             st.write(rekap_show)
 
@@ -247,47 +247,62 @@ def main():
             for error_lable, value in error_data.items():
                 st.write(f"{error_lable}: {value:.2f}")
 
+            # Simpan rekap ke dalam session
+            set_session(rekap=rekap)
+
 
 
     with st.expander("Visualisasi Error"):
+        if "linreg" in st.session_state:
+            # Dapatkan mode
+            mode = get_session("mode")
 
-        # Tampilkan diagram batang error
-        st.write(f"Diagram batang MSE pada harga {mode}")
-        bar_chart = error_bar_chart(rekap)
-        st.bokeh_chart(bar_chart)
-        
-        st.markdown("#")
+            # Dapatkan rekap
+            rekap = get_session("rekap")
 
-        # Tampilkan diagram garis error
-        st.write(f"Diagram garis MSE pada harga {mode}")
-        bar_chart = error_line_chart(rekap)
-        st.bokeh_chart(bar_chart)
-
-        
-
-# def show_chart(mode):
-#     chart_functs = [("Batang", error_bar_chart), ("Garis", error_line_chart)]
-#     for shape, func in chart_functs:
-#         st.markdown("**Diagram {} MSE pada harga {}**".format(shape, mode))
-#         rekap = st.session_state["rekap_{}".format(mode)]
-#         chart = func(rekap=rekap)
-#         st.bokeh_chart(chart)
-#     st.markdown("#")
-
-
-# @wrap_view("Visualisasi Error")
-# @is_trained
-# def view_charts():
-#     show_mode = st.selectbox("Jenis", [ "Semua", "Harga Jual", "Harga Beli"], key="charts")
-#     st.markdown("#")
-#     show_mode = show_mode.lower().split()
-    
-#     for mode in MODES:
-#         if mode in show_mode or "semua" in show_mode:
-#             show_chart(mode)
-#         else:
-#             continue
+            # Tampilkan diagram batang error
+            st.write(f"Diagram batang MSE pada harga {mode}")
+            bar_chart = error_bar_chart(rekap)
+            st.bokeh_chart(bar_chart)
             
+            st.markdown("#")
+
+            # Tampilkan diagram garis error
+            st.write(f"Diagram garis MSE pada harga {mode}")
+            bar_chart = error_line_chart(rekap)
+            st.bokeh_chart(bar_chart)
+            
+
+    with st.expander("Prediksi Jangka Waktu Tertentu"):
+        if "linreg" in st.session_state:
+            # Dapatkan mode
+            mode = get_session("mode")
+
+            # Dapatkan prediktor asli
+            X_unshifted = get_session("X_unshifted")
+
+            # Dapatkan scaler
+            scaler_y = get_session("scaler_y")
+
+            # Dapatkan model regresi
+            linreg, linreg_ga = get_session("linreg", "linreg_ga")
+
+            with st.form("Period"):
+                period = st.number_input(label="Jangka Waktu Prediksi (hari)", min_value=5, max_value=30)
+                is_submit = st.form_submit_button("Prediksi")
+                st.markdown("#")
+
+                if is_submit:
+                    predict_period = predict_ranged_days(
+                        period=period, 
+                        X_unshifted=X_unshifted, 
+                        rekap=rekap,
+                        model=linreg,
+                        model_ga=linreg_ga,
+                        scaler_y=scaler_y
+                    )
+                    st.write(f"Prediksi harga {mode} pada jangka waktu {period} hari")
+                    st.write(predict_period)
 
 
 # def show_predict_period(mode, period):
