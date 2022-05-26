@@ -104,3 +104,12 @@ def preprocess_data(X, X_unshifted, y, test_size):
     y_test.loc[:] = scaler_y.transform(y_test)
 
     return X_train, X_test, X_unshifted, y_train, y_test, scaler_X, scaler_y
+
+
+def sort_splitted_data(train_data, test_data):
+    train_len = len(train_data)
+    
+    sorted_data = pd.concat([train_data, test_data]).sort_index()
+    train_sorted, test_sorted = sorted_data[:train_len], sorted_data[train_len:]
+
+    return train_sorted, test_sorted
