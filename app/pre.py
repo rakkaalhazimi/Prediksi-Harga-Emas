@@ -67,10 +67,6 @@ def prepare_data(df, mode):
     return X, X_real, y
 
 
-
-def split_data(X, y, test_size):
-    return train_test_split(X, y, test_size=test_size, random_state=42)
-
 def init_scaler(data, scaler):
     scaler_instance = scaler()
     scaler_fitted = scaler_instance.fit(data)
@@ -93,8 +89,9 @@ def date_offset(df):
 
 def preprocess_data(X, X_unshifted, y, test_size):
     # Split Data
-    X_train, X_test, y_train, y_test = split_data(X, y, test_size=test_size)
-
+    ## Data acak
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    
     # Inisiasi Scaler
     scaler_X = init_scaler(X_train, MinMaxScaler)
     scaler_y = init_scaler(y_train, MinMaxScaler)
