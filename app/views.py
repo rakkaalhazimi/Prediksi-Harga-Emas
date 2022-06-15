@@ -187,16 +187,19 @@ def main():
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
+            # Dapatkan nilai fitness terbaik
+            best_fitness = get_session("best_fitness")
+
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
             # Evaluasi model regresi linier
             r2, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
-            linreg_metrics = [r2, mse, rmse]
+            linreg_metrics = [r2, mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
             r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
-            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga]
+            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
@@ -204,9 +207,9 @@ def main():
             metric_table = pd.DataFrame(
                 data=[linreg_metrics, linreg_ga_metrics],
                 index=["Regresi Linier", "Regresi Linier + GA"],
-                columns=["R2", "MSE", "RMSE"]
+                columns=["R2", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=2)
+            metric_table = metric_table.style.format(precision=3)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
