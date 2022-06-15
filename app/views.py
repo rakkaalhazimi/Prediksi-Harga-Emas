@@ -187,9 +187,6 @@ def main():
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
-            # Dapatkan nilai fitness terbaik
-            best_fitness = get_session("best_fitness")
-
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
@@ -199,7 +196,7 @@ def main():
 
             # Evaluasi model regresi linier + GA
             r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
-            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
+            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, 1 / mse_ga]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
