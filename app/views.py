@@ -187,6 +187,9 @@ def main():
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
+            # Dapatkan nilai fitness terbaik
+            best_fitness = get_session("best_fitness")
+
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
@@ -196,7 +199,8 @@ def main():
 
             # Evaluasi model regresi linier + GA
             r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
-            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, 1 / mse_ga]
+            best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
+            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
@@ -206,7 +210,7 @@ def main():
                 index=["Regresi Linier", "Regresi Linier + GA"],
                 columns=["R2", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=3)
+            metric_table = metric_table.style.format(precision=7)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
