@@ -176,7 +176,7 @@ def main():
 
 
     # Tampilan Hasil Evaluasi Model
-    with st.expander("Hasil Evaluasi Model"):
+    with st.expander("Hasil Evaluasi Model", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -221,7 +221,7 @@ def main():
                 
 
     # Tampilan Hasil Perbandingan Prediksi
-    with st.expander("Hasil Perbandingan Prediksi"):
+    with st.expander("Hasil Perbandingan Prediksi", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -271,7 +271,7 @@ def main():
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error"):
+    with st.expander("Visualisasi Error", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -293,7 +293,7 @@ def main():
             
 
     # Tampilan Prediksi Jangka Waktu Tertentu
-    with st.expander("Prediksi Jangka Waktu Tertentu"):
+    with st.expander("Prediksi Jangka Waktu Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -351,7 +351,7 @@ def main():
 
 
     # Tampilan Prediksi Tanggal Tertentu
-    with st.expander("Prediksi Tanggal Tertentu"):
+    with st.expander("Prediksi Tanggal Tertentu", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
