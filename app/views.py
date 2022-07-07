@@ -8,7 +8,7 @@ from data import load_csv_data, load_custom_data, verify_data
 from models import get_linreg_model, gen_algo, evaluate
 from pre import preprocess_data, prepare_data, sort_splitted_data
 from predictions import predict_ranged_days, prediction_date_based
-from tables import compar_error, rekap_table
+from tables import compar_error, compar_error_plain, rekap_table
 from plots import error_bar_chart, error_line_chart, predictions_line_chart
 from utils.sessions import get_session, set_session
 
@@ -265,13 +265,8 @@ def main():
             st.dataframe(rekap_second_table.style.format(precision=2))
 
             # Dapatkan rata-rata error
-            error_data = {
-                "Rata-rata error MSE tanpa algoritma genetika": mse, 
-                "Rata-rata error MSE dengan algoritma genetika": mse_ga, 
-                "Rata-rata error RMSE tanpa algoritma genetika": rmse, 
-                "Rata-rata error RMSE dengan algoritma genetika": rmse_ga
-            }
-            # error_data = compar_error(rekap)
+            # error_data = compar_error_plain(mse, mse_ga, rmse, rmse_ga)
+            error_data = compar_error(rekap)
             
             for error_lable, value in error_data.items():
                 st.write(f"{error_lable}: {value:.2f}")
