@@ -181,8 +181,12 @@ def main():
             # Dapatkan mode
             mode = get_session("mode")
             
-            # Dapatkan data test
-            X_test, y_test = get_session("X_test", "y_test")
+            # Dapatkan data train dan test
+            X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
+
+            # Urutkan data
+            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
+            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
 
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
@@ -194,11 +198,11 @@ def main():
             scaler_y = get_session("scaler_y")
 
             # Evaluasi model regresi linier
-            r2, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
+            r2, mse, rmse = evaluate(X_test_sorted, y_test_sorted, linreg, scaler_y)
             linreg_metrics = [r2, mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
-            r2_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
+            r2_ga, mse_ga, rmse_ga = evaluate(X_test_sorted, y_test_sorted, linreg_ga, scaler_y)
             best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
             linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
 
@@ -216,7 +220,8 @@ def main():
             # Simpan metrik ke dalam session
             set_session(
                 r2=r2, mse=mse, rmse=rmse,
-                r2_ga=r2_ga, mse_ga=mse_ga, rmse_ga=rmse_ga
+                r2_ga=r2_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
+                X_test_sorted=X_test_sorted, y_test_sorted=y_test_sorted
             )
                 
 
@@ -229,9 +234,8 @@ def main():
             # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
-            # Urutkan data
-            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
-            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
+            # Dapatkan data yang telah diurutkan
+            X_test_sorted, y_test_sorted = get_session("X_test_sorted", "y_test_sorted")
             
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
