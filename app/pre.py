@@ -90,7 +90,7 @@ def date_offset(df):
 def preprocess_data(X, X_unshifted, y, test_size):
     # Split Data
     ## Data acak
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, shuffle=False)
     
     # Inisiasi Scaler
     scaler_X = init_scaler(X_train, MinMaxScaler)

@@ -185,8 +185,8 @@ def main():
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
             # Urutkan data
-            X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
-            y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
+            # X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
+            # y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
 
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
@@ -235,7 +235,7 @@ def main():
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
             # Dapatkan data yang telah diurutkan
-            X_test_sorted, y_test_sorted = get_session("X_test_sorted", "y_test_sorted")
+            # X_test_sorted, y_test_sorted = get_session("X_test_sorted", "y_test_sorted")
             
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
@@ -250,8 +250,8 @@ def main():
 
             # Dapatkan tabel rekapitulasi
             rekap = rekap_table(
-                X_test=X_test_sorted,
-                y_test=y_test_sorted,
+                X_test=X_test,
+                y_test=y_test,
                 model=linreg, 
                 model_ga=linreg_ga,
                 scaler_y=scaler_y,
