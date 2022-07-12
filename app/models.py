@@ -26,11 +26,12 @@ def create_population(size, n_feat):
 
 
 def get_fitness(population, X_train, y_train):
-    constant = np.ones(shape=(X_train.shape[0], 1))
-    X_train = np.concatenate((constant, X_train), axis=1)
+    linreg = LinearRegression()
+    linreg.intercept_ = population[:, 0]
+    linreg.coef_ = population[:, 1:]
     
     # Lakukan prediksi dengan melakukan perkalian matriks antara koefisien dan data
-    predictions = np.matmul(X_train, population.T)
+    predictions = linreg.predict(X_train)
     
     # Hitung nilai fitness
     mse = np.mean((predictions - np.array(y_train))**2, axis=0)
