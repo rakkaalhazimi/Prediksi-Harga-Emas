@@ -198,13 +198,13 @@ def main():
             scaler_y = get_session("scaler_y")
 
             # Evaluasi model regresi linier
-            r2, mse, rmse = evaluate(X_test_sorted, y_test_sorted, linreg, scaler_y)
-            linreg_metrics = [r2, mse, rmse, None]
+            mape, mse, rmse = evaluate(X_test, y_test, linreg, scaler_y)
+            linreg_metrics = [mape, mse, rmse, None]
 
             # Evaluasi model regresi linier + GA
-            r2_ga, mse_ga, rmse_ga = evaluate(X_test_sorted, y_test_sorted, linreg_ga, scaler_y)
-            best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
-            linreg_ga_metrics = [r2_ga, mse_ga, rmse_ga, best_fitness]
+            mape_ga, mse_ga, rmse_ga = evaluate(X_test, y_test, linreg_ga, scaler_y)
+            ## best_fitness = 1 / mse_ga  # comment code ini apabila ingin menggunakan data normal
+            linreg_ga_metrics = [mape_ga, mse_ga, rmse_ga, best_fitness]
 
             st.write(f"Metrik regresi pada harga {mode}")
 
@@ -212,16 +212,16 @@ def main():
             metric_table = pd.DataFrame(
                 data=[linreg_metrics, linreg_ga_metrics],
                 index=["Regresi Linier", "Regresi Linier + GA"],
-                columns=["R2", "MSE", "RMSE", "Fitness"]
+                columns=["MAPE", "MSE", "RMSE", "Fitness"]
             )
-            metric_table = metric_table.style.format(precision=7)
+            metric_table = metric_table.style.format(precision=4)
             st.table(metric_table)
 
             # Simpan metrik ke dalam session
             set_session(
-                r2=r2, mse=mse, rmse=rmse,
-                r2_ga=r2_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
-                X_test_sorted=X_test_sorted, y_test_sorted=y_test_sorted
+                mape=mape, mse=mse, rmse=rmse,
+                mape_ga=mape_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
+                # X_test_sorted=X_test_sorted, y_test_sorted=y_test_sorted
             )
                 
 

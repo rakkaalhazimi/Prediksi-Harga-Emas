@@ -4,7 +4,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_percentage_error
 
 from config import Config as c
 
@@ -140,11 +140,12 @@ def evaluate(X, y, model, scaler_y=None):
         predictions = scaler_y.inverse_transform(predictions)
         true = scaler_y.inverse_transform(true)
     
-    r2 = r2_score(true, predictions)
+    # r2 = r2_score(true, predictions)
+    mape = mean_absolute_percentage_error(true, predictions)
     mse = mean_squared_error(true, predictions)
     rmse = mean_squared_error(true, predictions, squared=False)
 
-    return r2, mse, rmse
+    return mape, mse, rmse
 
 
 
