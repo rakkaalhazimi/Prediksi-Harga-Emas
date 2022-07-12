@@ -184,10 +184,6 @@ def main():
             # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
-            # Urutkan data
-            # X_train_sorted, X_test_sorted = sort_splitted_data(X_train, X_test)
-            # y_train_sorted, y_test_sorted = sort_splitted_data(y_train, y_test)
-
             # Dapatkan model regresi
             linreg, linreg_ga = get_session("linreg", "linreg_ga")
 
@@ -221,7 +217,6 @@ def main():
             set_session(
                 mape=mape, mse=mse, rmse=rmse,
                 mape_ga=mape_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
-                # X_test_sorted=X_test_sorted, y_test_sorted=y_test_sorted
             )
                 
 
@@ -234,9 +229,6 @@ def main():
             # Dapatkan data train dan test
             X_train, X_test, y_train, y_test = get_session("X_train", "X_test", "y_train", "y_test")
 
-            # Dapatkan data yang telah diurutkan
-            # X_test_sorted, y_test_sorted = get_session("X_test_sorted", "y_test_sorted")
-            
             # Dapatkan scaler
             scaler_y = get_session("scaler_y")
 
