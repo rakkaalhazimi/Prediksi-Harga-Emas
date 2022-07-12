@@ -62,7 +62,7 @@ def prepare_data(df, mode):
     X, X_real, y = get_variables(df, mode, period=c.SHIFT)
 
     # Pre - Atur Skala Data
-    y = scale_data(y)
+    # y = scale_data(y)
 
     return X, X_real, y
 
