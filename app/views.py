@@ -273,7 +273,7 @@ def main():
 
 
     # Tampilan Visualisasi Error
-    with st.expander("Visualisasi Error", expanded=True):
+    with st.expander("Visualisasi MAPE", expanded=True):
         if "linreg" in st.session_state:
             # Dapatkan mode
             mode = get_session("mode")
@@ -281,16 +281,16 @@ def main():
             # Dapatkan rekap
             rekap = get_session("rekap")
 
-            # Tampilkan diagram batang error
-            st.write(f"Diagram batang MSE pada harga {mode}")
-            bar_chart = error_bar_chart(rekap)
+            # Tampilkan diagram batang
+            st.write(f"Diagram batang MAPE pada harga {mode}")
+            bar_chart = error_bar_chart(rekap, col1="MAPE MLR", col2="MAPE MLR+Genetic")
             st.bokeh_chart(bar_chart)
             
             st.markdown("#")
 
-            # Tampilkan diagram garis error
-            st.write(f"Diagram garis MSE pada harga {mode}")
-            bar_chart = error_line_chart(rekap)
+            # Tampilkan diagram garis
+            st.write(f"Diagram garis MAPE pada harga {mode}")
+            bar_chart = error_line_chart(rekap, col1="MAPE MLR", col2="MAPE MLR+Genetic")
             st.bokeh_chart(bar_chart)
             
 
