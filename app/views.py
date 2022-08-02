@@ -219,6 +219,9 @@ def main():
                 mape=mape, mse=mse, rmse=rmse,
                 mape_ga=mape_ga, mse_ga=mse_ga, rmse_ga=rmse_ga,
             )
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat hasil evaluasi")
                 
 
     # Tampilan Hasil Perbandingan Prediksi
@@ -271,6 +274,9 @@ def main():
 
             # Simpan rekap ke dalam session
             set_session(rekap=rekap)
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat hasil perbandingan prediksi")
 
 
     # Tampilan Visualisasi Error
@@ -293,6 +299,9 @@ def main():
             st.write(f"Diagram garis MAPE pada harga {mode}")
             bar_chart = error_line_chart(rekap, col1="MAPE MLR", col2="MAPE MLR+Genetic")
             st.bokeh_chart(bar_chart)
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melihat visualisasi MAPE")
             
 
     # Tampilan Prediksi Jangka Waktu Tertentu
@@ -349,6 +358,8 @@ def main():
                     st.markdown(f"- Jika menggunakan regresi biasa, disarankan untuk {mode} emas pada tanggal {optimal_date}")
                     st.markdown(f"- Jika menggunakan regresi + GA, disarankan untuk {mode} emas pada tanggal {optimal_date_ga}")
 
+        else:
+            st.info("Latih model terlebih dahulu sebelum melakukan prediksi jangka waktu tertentu")
 
 
 
@@ -391,3 +402,6 @@ def main():
                 )
                 st.write(f"Prediksi harga {mode} emas pada {date:%d %B %Y}")
                 st.dataframe(predictions_date.style.format(precision=0))
+        
+        else:
+            st.info("Latih model terlebih dahulu sebelum melakukan prediksi tanggal tertentu")
