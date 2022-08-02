@@ -59,7 +59,7 @@ def predict_ranged_days(rekap, period, X_unshifted, model, model_ga, scaler_y):
 
 
 
-def prediction_date_based(date, X, model, model_ga, scaler_y):
+def prediction_date_based(date, X, y, model, model_ga, scaler_y):
     # Berapa banyak data yang digeser
     shift = c.SHIFT
 

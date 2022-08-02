@@ -92,7 +92,7 @@ def main():
         
         if is_submit:
             # Siapkan data
-            X, X_unshifted, y = prepare_data(data_used, mode=mode)
+            X, X_unshifted, y, y_unshifted = prepare_data(data_used, mode=mode)
 
             # Proses data untuk machine learning
             X_train, X_test, X_unshifted, y_train, y_test, scaler_X, scaler_y = preprocess_data(X, X_unshifted, y, test_size)
@@ -103,6 +103,7 @@ def main():
                 X_train=X_train, 
                 X_test=X_test, 
                 X_unshifted=X_unshifted, 
+                y_unshifted=y_unshifted, 
                 y_train=y_train, 
                 y_test=y_test,
                 scaler_X=scaler_X,
@@ -358,7 +359,8 @@ def main():
             # Dapatkan mode
             mode = get_session("mode")
 
-            # Dapatkan prediktor asli
+            # Dapatkan respon dan prediktor asli
+            y_unshifted = get_session("y_unshifted")
             X_unshifted = get_session("X_unshifted")
 
             # Dapatkan scaler
@@ -369,8 +371,8 @@ def main():
 
             # Tentukan tanggal minimal dan maksimal
             shift = c.SHIFT
-            min_value=X_unshifted.index[shift]
-            max_value=X_unshifted.index[-1] + pd.Timedelta(days=shift)
+            min_value = X_unshifted.index[shift]
+            max_value = X_unshifted.index[-1] + pd.Timedelta(days=shift)
 
             with st.form("Date"):
                 date = st.date_input(label="Masukkan Tanggal", value=min_value, min_value=min_value, max_value=max_value)
