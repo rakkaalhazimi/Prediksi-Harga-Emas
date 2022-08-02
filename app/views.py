@@ -384,6 +384,7 @@ def main():
                 predictions_date = prediction_date_based(
                     date=date, 
                     X=X_unshifted,
+                    y=y_unshifted,
                     model=linreg,
                     model_ga=linreg_ga,
                     scaler_y=scaler_y,
