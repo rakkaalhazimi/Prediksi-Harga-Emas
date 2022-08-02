@@ -79,12 +79,13 @@ def main():
             if valid and custom_data is not None:
                 data_used = custom_data
                 dataset_type = custom
-
-        st.write(dataset_type) 
             
 
     # Tampilan Parameter Data
     with st.expander("Parameter Data"):
+
+        st.write("Tentukan konfigurasi yang akan diterapkan pada data.")
+
         with st.form("Parameter data"):
             mode = st.selectbox(label="Pilihan Harga", options=[c.BUY_MODE, c.SELL_MODE])
             test_size = st.number_input(label="Ukuran Data Test", min_value=0.1, max_value=0.5, step=0.05)
@@ -113,6 +114,9 @@ def main():
     
     # Tampilan Parameter Genetika
     with st.expander("Parameter Genetika"):
+        
+        st.write("Tentukan konfigurasi yang akan diterapkan pada algoritma genetika.")
+
         with st.form("Parameter gen"):
             n_gen = st.number_input(label="Jumlah Generasi", min_value=10, step=10)
             size = st.number_input(label="Ukuran Populasi", min_value=10, step=10)
